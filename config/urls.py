@@ -32,4 +32,11 @@ urlpatterns = [
             namespace='teachers'
         )
     ),
+    path(
+        'api/contents/',
+        include(
+            ('apps.contents.urls', 'contents'),
+            namespace='contents'
+        )
+    ),
 ]

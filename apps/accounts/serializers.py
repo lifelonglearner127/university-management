@@ -143,3 +143,17 @@ class VerifyJWTSerializer(VerificationBaseSerializer):
             'token': token,
             'user': user
         }
+
+
+class UserNameSerializer(serializers.ModelSerializer):
+
+    name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = m.User
+        fields = (
+            'id', 'name'
+        )
+
+    def get_name(self, instance):
+        return instance.name if instance.name else instance.username

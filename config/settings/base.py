@@ -48,7 +48,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     'apps.accounts.apps.AccountsConfig',
     'apps.teachers.apps.TeachersConfig',
-    'apps.notifications.apps.NotificationsConfig',
+    'apps.contents.apps.ContentsConfig',
     'apps.regulations.apps.RegulationsConfig',
 ]
 
@@ -147,6 +147,11 @@ MEDIA_URL =  '/media/'
 MEDIA_ROOT = str(ROOT_DIR("media"))
 
 
+
+AUTH_USER_MODEL = 'accounts.User'
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend'
+]
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (

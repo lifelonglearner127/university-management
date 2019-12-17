@@ -4,7 +4,8 @@ from . import views as v
 
 
 router = DefaultRouter(trailing_slash=False)
-router.register(r'departments', v.DepartmentViewSet)
+router.register(r'news', v.NewsViewSet)
+router.register(r'notifications', v.NotificationsViewSet)
 
 urlpatterns = [
     path('', include(router.urls))
