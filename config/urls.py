@@ -33,6 +33,13 @@ urlpatterns = [
         )
     ),
     path(
+        'api/regulations/',
+        include(
+            ('apps.regulations.urls', 'regulations'),
+            namespace='regulations'
+        )
+    ),
+    path(
         'api/contents/',
         include(
             ('apps.contents.urls', 'contents'),

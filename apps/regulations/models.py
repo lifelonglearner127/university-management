@@ -58,4 +58,3 @@ class AttendanceTime(models.Model):
 
 class AttendanceManagement(models.Model):
     pass
-
