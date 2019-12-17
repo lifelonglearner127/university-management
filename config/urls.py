@@ -25,4 +25,11 @@ urlpatterns = [
             namespace='accounts'
         )
     ),
+    path(
+        'api/teachers/',
+        include(
+            ('apps.teachers.urls', 'teachers'),
+            namespace='teachers'
+        )
+    ),
 ]
