@@ -40,6 +40,12 @@ class User(AbstractBaseUser):
         validators=[validate_username]
     )
 
+    email = models.EmailField(
+        unique=True,
+        null=True,
+        blank=True
+    )
+
     name = models.CharField(
         max_length=100,
         null=True,
