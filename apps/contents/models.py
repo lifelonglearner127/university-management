@@ -18,7 +18,8 @@ class News(TimeStampedModel):
 
     author = models.ForeignKey(
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='as_news_author'
     )
 
     is_published = models.BooleanField(
@@ -29,11 +30,39 @@ class News(TimeStampedModel):
         default=False
     )
 
+    audiences = models.ManyToManyField(
+        User,
+        through='NewsAudiences',
+        through_fields=('news', 'audience')
+    )
+
     objects = models.Manager()
     availables = managers.AvailableNewsManager()
     deleteds = managers.DeletedNewsManager()
     publisheds = managers.PublishedNewsManager()
     pendings = managers.PendingNewsManager()
+
+
+class NewsAudiences(models.Model):
+
+    news = models.ForeignKey(
+        News,
+        on_delete=models.CASCADE
+    )
+
+    audience = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+
+    is_read = models.BooleanField(
+        default=False
+    )
+
+    read_on = models.DateTimeField(
+        null=True,
+        blank=True
+    )
 
 
 class Notifications(TimeStampedModel):
