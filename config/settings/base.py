@@ -42,7 +42,8 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     'rest_framework',
-    'corsheaders'
+    'corsheaders',
+    'channels',
 ]
 
 LOCAL_APPS = [
@@ -59,6 +60,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # ----------------------------------------------------------------------------
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -170,4 +172,16 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS':
         'apps.core.pagination.StandardResultsSetPagination',
+}
+
+# Django Channels Settings
+# ----------------------------------------------------------------------------
+ASGI_APPLICATION = 'config.routing.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
 }

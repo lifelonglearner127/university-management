@@ -23,7 +23,10 @@ class NewsAudiencesAdminSerializer(serializers.ModelSerializer):
 
 
 class NewsBodylessSerializer(serializers.ModelSerializer):
+    """News Serializer without news body
 
+    This serializer is used for listing news in apps
+    """
     author = UserNameSerializer(read_only=True)
 
     class Meta:
@@ -33,8 +36,36 @@ class NewsBodylessSerializer(serializers.ModelSerializer):
         )
 
 
+class NewsSerializer(serializers.ModelSerializer):
+    """News Serializer
+    
+    This serializer is used for creating & updating news instance
+    """
+    created = serializers.DateTimeField(
+        format='%Y-%m-%d %H:%M:%S', required=False
+    )
+    updated = serializers.DateTimeField(
+        format='%Y-%m-%d %H:%M:%S', required=False
+    )
+
+    class Meta:
+        model = m.News
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret['author'] = UserNameSerializer(instance.author).data
+        ret['audiences'] = UserNameSerializer(
+            instance.audiences, many=True
+        ).data
+
+        return ret
+
+
 class NewsAdminSerializer(serializers.ModelSerializer):
     """News Serializer for web manager
+
+    This serializer is used for displaying the read status of the audiences
     """
     author = UserNameSerializer(read_only=True)
     created = serializers.DateTimeField(
@@ -50,52 +81,6 @@ class NewsAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = m.News
         fields = '__all__'
-
-    def create(self, validated_data):
-        audiences = self.context.get('audiences', [])
-        news = m.News.objects.create(
-            author=get_object_or_404(m.User, id=self.context.get('author')),
-            **validated_data
-        )
-
-        batch_size = 100
-        objs = (
-            m.NewsAudiences(
-                news=news, audience=get_object_or_404(m.User, id=audience)
-            ) for audience in audiences
-        )
-        while True:
-            batch = list(islice(objs, batch_size))
-            if not batch:
-                break
-            m.NewsAudiences.objects.bulk_create(batch, batch_size)
-
-        return news
-
-    def update(self, instance, validated_data):
-        audiences = self.context.get('audiences', [])
-        for key, value in validated_data.items():
-            setattr(instance, key, value)
-
-        instance.author = get_object_or_404(m.User, id=self.context.get('author'))
-        instance.save()
-
-        instance.newsaudiences_set.exclude(audience__in=audiences).delete()
-        existing_audiences = instance.audiences.values_list('id', flat=True)
-        new_audiences = [audience for audience in audiences if audience not in existing_audiences]
-        batch_size = 100
-        objs = (
-            m.NewsAudiences(
-                news=instance, audience=get_object_or_404(m.User, id=audience)
-            ) for audience in new_audiences
-        )
-        while True:
-            batch = list(islice(objs, batch_size))
-            if not batch:
-                break
-            m.NewsAudiences.objects.bulk_create(batch, batch_size)
-
-        return instance
 
 
 class NewsAudiencesAppSerializer(serializers.ModelSerializer):
@@ -128,6 +113,32 @@ class NotificationsAudiencesAdminSerializer(serializers.ModelSerializer):
         )
 
 
+class NotificationSerializer(serializers.ModelSerializer):
+    """News Serializer
+    
+    This serializer is used for creating & updating notification instance
+    """
+    created = serializers.DateTimeField(
+        format='%Y-%m-%d %H:%M:%S', required=False
+    )
+    updated = serializers.DateTimeField(
+        format='%Y-%m-%d %H:%M:%S', required=False
+    )
+
+    class Meta:
+        model = m.Notifications
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret['author'] = UserNameSerializer(instance.author).data
+        ret['audiences'] = UserNameSerializer(
+            instance.audiences, many=True
+        ).data
+
+        return ret
+
+
 class NotificationsDataSerializer(serializers.ModelSerializer):
     """Serializer for notification
     """
@@ -142,7 +153,9 @@ class NotificationsDataSerializer(serializers.ModelSerializer):
 
 
 class NotificationsAdminSerializer(serializers.ModelSerializer):
-    """News Serializer for web manager
+    """Notification Serializer for web manager
+
+    This serializer is used for displaying the read status of the audiences
     """
     author = UserNameSerializer(read_only=True)
     created = serializers.DateTimeField(
@@ -158,52 +171,6 @@ class NotificationsAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = m.Notifications
         fields = '__all__'
-
-    def create(self, validated_data):
-        audiences = self.context.get('audiences', [])
-        notification = m.Notifications.objects.create(
-            author=get_object_or_404(m.User, id=self.context.get('author')),
-            **validated_data
-        )
-
-        batch_size = 100
-        objs = (
-            m.NotificationsAudiences(
-                notification=notification, audience=get_object_or_404(m.User, id=audience)
-            ) for audience in audiences
-        )
-        while True:
-            batch = list(islice(objs, batch_size))
-            if not batch:
-                break
-            m.NotificationsAudiences.objects.bulk_create(batch, batch_size)
-
-        return notification
-
-    def update(self, instance, validated_data):
-        audiences = self.context.get('audiences', [])
-        for key, value in validated_data.items():
-            setattr(instance, key, value)
-
-        instance.author = get_object_or_404(m.User, id=self.context.get('author'))
-        instance.save()
-
-        instance.notificationsaudiences_set.exclude(audience__in=audiences).delete()
-        existing_audiences = instance.audiences.values_list('id', flat=True)
-        new_audiences = [audience for audience in audiences if audience not in existing_audiences]
-        batch_size = 100
-        objs = (
-            m.NotificationsAudiences(
-                notification=instance, audience=get_object_or_404(m.User, id=audience)
-            ) for audience in new_audiences
-        )
-        while True:
-            batch = list(islice(objs, batch_size))
-            if not batch:
-                break
-            m.NotificationsAudiences.objects.bulk_create(batch, batch_size)
-
-        return instance
 
 
 class NotificationsAudiencesAppSerializer(serializers.ModelSerializer):

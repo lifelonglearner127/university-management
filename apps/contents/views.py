@@ -5,48 +5,13 @@ from rest_framework.response import Response
 
 from . import models as m
 from . import serializers as s
+from .tasks import publish_news, send_notifications
 
 
 class NewsViewSet(viewsets.ModelViewSet):
 
     queryset = m.News.availables.all()
-    serializer_class = s.NewsAdminSerializer
-
-    def create(self, request):
-        context = {
-            'author': request.data.pop('author'),
-            'audiences': request.data.pop('audiences'),
-        }
-
-        serializer = self.serializer_class(
-            data=request.data,
-            context=context
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(
-            serializer.data,
-            status=status.HTTP_200_OK
-        )
-
-    def update(self, request, pk=None):
-        instance = self.get_object()
-        context = {
-            'author': request.data.pop('author'),
-            'audiences': request.data.pop('audiences'),
-        }
-
-        serializer = self.serializer_class(
-            instance,
-            data=request.data,
-            context=context
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(
-            serializer.data,
-            status=status.HTTP_200_OK
-        )
+    serializer_class = s.NewsSerializer
 
     def destroy(self, request, pk=None):
         instance = self.get_object()
@@ -60,8 +25,14 @@ class NewsViewSet(viewsets.ModelViewSet):
     @action(detail=True, url_path='publish')
     def publish(self, request, pk=None):
         instance = self.get_object()
-        instance.is_published = True
-        instance.save()
+        if not instance.is_published:
+            instance.is_published = True
+            instance.save()
+            publish_news.apply_async(
+                args=[{
+                    'news': instance.id
+                }]
+            )
         return Response(
             self.serializer_class(instance).data,
             status=status.HTTP_200_OK
@@ -70,16 +41,8 @@ class NewsViewSet(viewsets.ModelViewSet):
     @action(detail=True, url_path='read')
     def read(self, request, pk=None):
         instance = self.get_object()
-        news_audience = instance.newsaudiences_set.filter(audience=request.user).first()
-        if not news_audience:
-            return Response(
-                {
-                    'msg': 'You are not permitted to read this news'
-                },
-                status=status.HTTP_403_FORBIDDEN
-            )
 
-        if not news_audience.is_published:
+        if not instance.is_published:
             return Response(
                 {
                     'msg': 'This news is not published yet'
@@ -87,11 +50,22 @@ class NewsViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        news_audience.is_read = True
-        news_audience.read_on = datetime.now()
-        news_audience.save()
+        if request.user not in instance.audiences.all():
+            return Response(
+                {
+                    'msg': 'You are not permitted to read this news'
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        obj, created = m.NewsAudiences.objects.get_or_create(
+            news=instance, audience=request.user
+        )
+        obj.is_read = True
+        obj.read_on = datetime.now()
+        obj.save()
         return Response(
-            s.NewsAudiencesAppSerializer(news_audience).data,
+            s.NewsAudiencesAppSerializer(obj).data,
             status=status.HTTP_200_OK
         )
 
@@ -137,43 +111,7 @@ class NewsViewSet(viewsets.ModelViewSet):
 class NotificationsViewSet(viewsets.ModelViewSet):
 
     queryset = m.Notifications.availables.all()
-    serializer_class = s.NotificationsAdminSerializer
-
-    def create(self, request):
-        context = {
-            'author': request.data.pop('author'),
-            'audiences': request.data.pop('audiences'),
-        }
-
-        serializer = self.serializer_class(
-            data=request.data,
-            context=context
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(
-            serializer.data,
-            status=status.HTTP_200_OK
-        )
-
-    def update(self, request, pk=None):
-        instance = self.get_object()
-        context = {
-            'author': request.data.pop('author'),
-            'audiences': request.data.pop('audiences'),
-        }
-
-        serializer = self.serializer_class(
-            instance,
-            data=request.data,
-            context=context
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(
-            serializer.data,
-            status=status.HTTP_200_OK
-        )
+    serializer_class = s.NotificationSerializer
 
     def destroy(self, request, pk=None):
         instance = self.get_object()
@@ -187,24 +125,23 @@ class NotificationsViewSet(viewsets.ModelViewSet):
     @action(detail=True, url_path="send")
     def send(self, request, pk=None):
         instance = self.get_object()
-        instance.status = m.Notifications.STATUS_SENT
-        instance.save()
+        if instance.status != m.Notifications.STATUS_SENT:
+            instance.status = m.Notifications.STATUS_SENT
+            instance.save()
+            send_notifications.apply_async(
+                args=[{
+                    'notification': instance.id
+                }]
+            )
+        return Response(
+            self.serializer_class(instance).data,
+            status=status.HTTP_200_OK
+        )
 
     @action(detail=True, url_path='read')
     def read(self, request, pk=None):
         instance = self.get_object()
-        notification_audience = instance.notificationsaudiences_set.filter(
-            audience=request.user
-        ).first()
-        if not notification_audience:
-            return Response(
-                {
-                    'msg': 'You are not permitted to read this news'
-                },
-                status=status.HTTP_403_FORBIDDEN
-            )
-
-        if notification_audience.notification.status != m.Notifications.STATUS_SENT:
+        if instance.status != m.Notifications.STATUS_SENT:
             return Response(
                 {
                     'msg': 'This notification is not delivered yet'
@@ -212,11 +149,22 @@ class NotificationsViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        notification_audience.is_read = True
-        notification_audience.read_on = datetime.now()
-        notification_audience.save()
+        if request.user not in instance.audiences.all():
+            return Response(
+                {
+                    'msg': 'You are not permitted to read this news'
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        obj, created = m.NotificationsAudiences.objects.get_or_create(
+            notification=instance, audience=request.user
+        )
+        obj.is_read = True
+        obj.read_on = datetime.now()
+        obj.save()
         return Response(
-            s.NotificationsAudiencesAppSerializer(notification_audience).data,
+            s.NotificationsAudiencesAppSerializer(obj).data,
             status=status.HTTP_200_OK
         )
 

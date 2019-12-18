@@ -31,9 +31,7 @@ class News(TimeStampedModel):
     )
 
     audiences = models.ManyToManyField(
-        User,
-        through='NewsAudiences',
-        through_fields=('news', 'audience')
+        User
     )
 
     objects = models.Manager()
@@ -41,6 +39,9 @@ class News(TimeStampedModel):
     deleteds = managers.DeletedNewsManager()
     publisheds = managers.PublishedNewsManager()
     pendings = managers.PendingNewsManager()
+
+    def __str__(self):
+        return f'{self.id} - {self.title}'
 
 
 class NewsAudiences(models.Model):
@@ -63,6 +64,9 @@ class NewsAudiences(models.Model):
         null=True,
         blank=True
     )
+
+    def __str__(self):
+        return f'{self.news} - ({self.audience})'
 
 
 class Notifications(TimeStampedModel):
@@ -97,9 +101,7 @@ class Notifications(TimeStampedModel):
     )
 
     audiences = models.ManyToManyField(
-        User,
-        through='NotificationsAudiences',
-        through_fields=('notification', 'audience')
+        User
     )
 
     objects = models.Manager()
@@ -107,6 +109,9 @@ class Notifications(TimeStampedModel):
     pendings = managers.PendingNotificationsManager()
     availables = managers.AvailableNotificationsManager()
     deleteds = managers.DeletedNotificationsManager()
+
+    def __str__(self):
+        return f'{self.id} - {self.title}'
 
 
 class NotificationsAudiences(models.Model):
@@ -129,3 +134,6 @@ class NotificationsAudiences(models.Model):
         null=True,
         blank=True
     )
+
+    def __str__(self):
+        return f'{self.notification} - ({self.audience.name})'

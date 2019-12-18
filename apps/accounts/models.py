@@ -96,6 +96,10 @@ class User(AbstractBaseUser):
     def __str__(self):
         return self.username
 
+    @property
+    def is_staff(self):
+        return self.is_super_user
+
     def has_perm(self, perm, obj=None):
         if self.is_active and self.is_super_user:
             return True
