@@ -66,7 +66,10 @@ class NewsViewSet(viewsets.ModelViewSet):
         obj.recent_read_on = datetime.now()
         obj.save()
         return Response(
-            s.NewsAppSerializer(obj.news).data,
+            s.NewsAppSerializer(
+                obj.news,
+                context={'audience': request.user},
+            ).data,
             status=status.HTTP_200_OK
         )
 
@@ -183,7 +186,10 @@ class NotificationsViewSet(viewsets.ModelViewSet):
         obj.recent_read_on = datetime.now()
         obj.save()
         return Response(
-            s.NotificationsAppSerializer(obj.notification).data,
+            s.NotificationsAppSerializer(
+                obj.notification,
+                context={'audience': request.user},
+            ).data,
             status=status.HTTP_200_OK
         )
 
