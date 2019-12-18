@@ -23,7 +23,9 @@ class TimeSlotSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = m.TimeSlot
-        fields = '__all__'
+        exclude = (
+            'id',
+        )
 
 
 class AttendanceTimeNameSerializer(serializers.ModelSerializer):
@@ -37,12 +39,32 @@ class AttendanceTimeNameSerializer(serializers.ModelSerializer):
 
 class AttendanceTimeSerializer(serializers.ModelSerializer):
 
+    slots = TimeSlotSerializer(many=True, read_only=True)
+
     class Meta:
         model = m.AttendanceTime
         fields = '__all__'
 
     def create(self, validated_data):
-        pass
+        slots = self.context.pop('slots')
+        instance = m.AttendanceTime.objects.create(**validated_data)
+
+        for slot in slots:
+            obj = m.TimeSlot.objects.create(**slot)
+            instance.slots.add(obj)
+
+        return instance
 
     def update(self, instance, validated_data):
-        pass
+        slots = self.context.pop('slots')
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+
+        instance.save()
+
+        instance.slots.clear()
+        for slot in slots:
+            obj = m.TimeSlot.objects.create(**slot)
+            instance.slots.add(obj)
+
+        return instance
