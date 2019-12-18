@@ -79,6 +79,14 @@ class NewsViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
 
+        if not news_audience.is_published:
+            return Response(
+                {
+                    'msg': 'This news is not published yet'
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
         news_audience.is_read = True
         news_audience.read_on = datetime.now()
         news_audience.save()
@@ -91,7 +99,9 @@ class NewsViewSet(viewsets.ModelViewSet):
     def my_news(self, request):
         page = self.paginate_queryset(
             m.NewsAudiences.objects.filter(
-                audience=request.user, news__is_deleted=False
+                audience=request.user,
+                news__is_published=True,
+                news__is_deleted=False
             ).order_by('-news__updated')
         )
         serializer = s.NewsAudiencesAppSerializer(page, many=True)
@@ -101,7 +111,10 @@ class NewsViewSet(viewsets.ModelViewSet):
     def my_unread_news(self, request):
         page = self.paginate_queryset(
             m.NewsAudiences.objects.filter(
-                audience=request.user, is_read=False, news__is_deleted=False
+                audience=request.user,
+                is_read=False,
+                news__is_published=True,
+                news__is_deleted=False
             ).order_by('-news__updated')
         )
         serializer = s.NewsAudiencesAppSerializer(page, many=True)
@@ -111,7 +124,10 @@ class NewsViewSet(viewsets.ModelViewSet):
     def my_read_news(self, request):
         page = self.paginate_queryset(
             m.NewsAudiences.objects.filter(
-                audience=request.user, is_read=True, news__is_deleted=False
+                audience=request.user,
+                is_read=True,
+                news__is_published=True,
+                news__is_deleted=False
             ).order_by('-news__updated')
         )
         serializer = s.NewsAudiencesAppSerializer(page, many=True)
@@ -168,6 +184,12 @@ class NotificationsViewSet(viewsets.ModelViewSet):
             status=status.HTTP_204_NO_CONTENT
         )
 
+    @action(detail=True, url_path="send")
+    def send(self, request, pk=None):
+        instance = self.get_object()
+        instance.status = m.Notifications.STATUS_SENT
+        instance.save()
+
     @action(detail=True, url_path='read')
     def read(self, request, pk=None):
         instance = self.get_object()
@@ -178,6 +200,14 @@ class NotificationsViewSet(viewsets.ModelViewSet):
             return Response(
                 {
                     'msg': 'You are not permitted to read this news'
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        if notification_audience.notification.status != m.Notifications.STATUS_SENT:
+            return Response(
+                {
+                    'msg': 'This notification is not delivered yet'
                 },
                 status=status.HTTP_403_FORBIDDEN
             )
@@ -194,7 +224,9 @@ class NotificationsViewSet(viewsets.ModelViewSet):
     def my_notifications(self, request):
         page = self.paginate_queryset(
             m.NotificationsAudiences.objects.filter(
-                audience=request.user, notification__is_deleted=False
+                audience=request.user,
+                notification__status=m.Notifications.STATUS_SENT,
+                notification__is_deleted=False,
             ).order_by('-notification__updated')
         )
         serializer = s.NotificationsAudiencesAppSerializer(page, many=True)
@@ -204,7 +236,10 @@ class NotificationsViewSet(viewsets.ModelViewSet):
     def my_unread_notifications(self, request):
         page = self.paginate_queryset(
             m.NotificationsAudiences.objects.filter(
-                audience=request.user, is_read=False, notification__is_deleted=False
+                audience=request.user,
+                is_read=False,
+                notification__status=m.Notifications.STATUS_SENT,
+                notification__is_deleted=False
             ).order_by('-notification__updated')
         )
         serializer = s.NotificationsAudiencesAppSerializer(page, many=True)
@@ -214,7 +249,10 @@ class NotificationsViewSet(viewsets.ModelViewSet):
     def my_read_notifications(self, request):
         page = self.paginate_queryset(
             m.NotificationsAudiences.objects.filter(
-                audience=request.user, is_read=True, notification__is_deleted=False
+                audience=request.user,
+                is_read=True,
+                notification__status=m.Notifications.STATUS_SENT,
+                notification__is_deleted=False,
             ).order_by('-notification__updated')
         )
         serializer = s.NotificationsAudiencesAppSerializer(page, many=True)
