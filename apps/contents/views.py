@@ -120,12 +120,13 @@ class NewsViewSet(viewsets.ModelViewSet):
 
 class NotificationsViewSet(viewsets.ModelViewSet):
 
-    queryset = m.Notifications.objects.all()
-    serializer_class = s.NotificationsSerializer
+    queryset = m.Notifications.availables.all()
+    serializer_class = s.NotificationsAdminSerializer
 
     def create(self, request):
         context = {
-            'author': request.data.pop('author')
+            'author': request.data.pop('author'),
+            'audiences': request.data.pop('audiences'),
         }
 
         serializer = self.serializer_class(
@@ -142,7 +143,8 @@ class NotificationsViewSet(viewsets.ModelViewSet):
     def update(self, request, pk=None):
         instance = self.get_object()
         context = {
-            'author': request.data.pop('author')
+            'author': request.data.pop('author'),
+            'audiences': request.data.pop('audiences'),
         }
 
         serializer = self.serializer_class(
@@ -157,6 +159,63 @@ class NotificationsViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK
         )
 
+    def destroy(self, request, pk=None):
+        instance = self.get_object()
+        instance.is_deleted = True
+        instance.save()
+        return Response(
+            self.serializer_class(instance).data,
+            status=status.HTTP_204_NO_CONTENT
+        )
+
     @action(detail=True, url_path='read')
     def read(self, request, pk=None):
-        pass
+        instance = self.get_object()
+        notification_audience = instance.notificationsaudiences_set.filter(
+            audience=request.user
+        ).first()
+        if not notification_audience:
+            return Response(
+                {
+                    'msg': 'You are not permitted to read this news'
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        notification_audience.is_read = True
+        notification_audience.read_on = datetime.now()
+        notification_audience.save()
+        return Response(
+            s.NotificationsAudiencesAppSerializer(notification_audience).data,
+            status=status.HTTP_200_OK
+        )
+
+    @action(detail=False, url_path='me/all')
+    def my_notifications(self, request):
+        page = self.paginate_queryset(
+            m.NotificationsAudiences.objects.filter(
+                audience=request.user, notification__is_deleted=False
+            ).order_by('-notification__updated')
+        )
+        serializer = s.NotificationsAudiencesAppSerializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
+
+    @action(detail=False, url_path='me/unreads')
+    def my_unread_notifications(self, request):
+        page = self.paginate_queryset(
+            m.NotificationsAudiences.objects.filter(
+                audience=request.user, is_read=False, notification__is_deleted=False
+            ).order_by('-notification__updated')
+        )
+        serializer = s.NotificationsAudiencesAppSerializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
+
+    @action(detail=False, url_path='me/reads')
+    def my_read_notifications(self, request):
+        page = self.paginate_queryset(
+            m.NotificationsAudiences.objects.filter(
+                audience=request.user, is_read=True, notification__is_deleted=False
+            ).order_by('-notification__updated')
+        )
+        serializer = s.NotificationsAudiencesAppSerializer(page, many=True)
+        return self.get_paginated_response(serializer.data)

@@ -82,7 +82,8 @@ class Notifications(TimeStampedModel):
 
     author = models.ForeignKey(
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='as_notifications_author'
     )
 
     status = models.CharField(
@@ -95,8 +96,36 @@ class Notifications(TimeStampedModel):
         default=False
     )
 
+    audiences = models.ManyToManyField(
+        User,
+        through='NotificationsAudiences',
+        through_fields=('notification', 'audience')
+    )
+
     objects = models.Manager()
     sents = managers.SentNotificationsManager()
     pendings = managers.PendingNotificationsManager()
     availables = managers.AvailableNotificationsManager()
     deleteds = managers.DeletedNotificationsManager()
+
+
+class NotificationsAudiences(models.Model):
+
+    notification = models.ForeignKey(
+        Notifications,
+        on_delete=models.CASCADE
+    )
+
+    audience = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+
+    is_read = models.BooleanField(
+        default=False
+    )
+
+    read_on = models.DateTimeField(
+        null=True,
+        blank=True
+    )
