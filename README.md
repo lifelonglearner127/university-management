@@ -27,3 +27,7 @@
     This document describles the methodology how we can track the bug on production site.
 
 ## FAQ
+1. Why do you use Django 2.2.1?
+
+    I tried to upgrade to django 3, but auto reboot broke after upgrade. Encountered such error `django.core.exceptions.SynchronousOnlyOperation: You cannot call this from an async context - use a thread or sync_to_async`. I found an article in the documentation (https://docs.djangoproject.com/en/3.0/topics/async/#async-safety), but I don’t understand how to fix the problem?
+    

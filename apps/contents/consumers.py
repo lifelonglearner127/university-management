@@ -19,7 +19,7 @@ class NotificationConsumer(AsyncJsonWebsocketConsumer):
         self.user.channel_name = ''
         self.user.save()
 
-    def receive(self, text_data):
+    async def receive(self, text_data):
         pass
 
     async def notify(self, event):
