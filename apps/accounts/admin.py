@@ -75,5 +75,6 @@ class UserAdmin(BaseUserAdmin):
     search_fields = ('username', 'name', )
     filter_horizontal = ()
 
+
 admin.site.register(m.User, UserAdmin)
 admin.site.unregister(Group)

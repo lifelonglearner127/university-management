@@ -1,3 +1,4 @@
 {
-    "python.pythonPath": "/home/dev/.virtualenvs/university-management/bin/python"
+    "python.pythonPath": "/home/dev/.virtualenvs/university-management/bin/python",
+    "python.linting.flake8Enabled": true
 }

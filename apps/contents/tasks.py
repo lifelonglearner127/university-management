@@ -1,4 +1,4 @@
-from itertools import islice
+import json
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from config.celery import app
@@ -17,7 +17,7 @@ def publish_news(context):
         if not audience.channel_name:
             continue
 
-        query_filter = Q(audiences=audience) & ~Q(newsaudiences__is_read=True)
+        query_filter = m.Q(audiences=audience) & ~m.Q(newsaudiences__is_read=True)
         my_unread_count = m.News.publisheds.filter(query_filter).count()
 
         async_to_sync(channel_layer.send)(
@@ -41,7 +41,7 @@ def send_notifications(context):
         if not audience.channel_name:
             continue
 
-        query_filter = Q(audiences=audience) & ~Q(notificationsaudiences__is_read=True)
+        query_filter = m.Q(audiences=audience) & ~m.Q(notificationsaudiences__is_read=True)
         my_unread_count = m.Notifications.sents.filter(query_filter).count()
 
         async_to_sync(channel_layer.send)(

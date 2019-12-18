@@ -1,5 +1,3 @@
-from itertools import islice
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from . import models as m
@@ -32,13 +30,13 @@ class NewsBodylessSerializer(serializers.ModelSerializer):
     class Meta:
         model = m.News
         fields = (
-            'id', 'title', 'author', 'is_published', 
+            'id', 'title', 'author', 'is_published',
         )
 
 
 class NewsSerializer(serializers.ModelSerializer):
     """News Serializer
-    
+
     This serializer is used for creating & updating news instance
     """
     created = serializers.DateTimeField(
@@ -137,7 +135,7 @@ class NotificationsAudiencesAdminSerializer(serializers.ModelSerializer):
 
 class NotificationSerializer(serializers.ModelSerializer):
     """News Serializer
-    
+
     This serializer is used for creating & updating notification instance
     """
     created = serializers.DateTimeField(

@@ -129,7 +129,6 @@ class NewsViewSet(viewsets.ModelViewSet):
         )
 
 
-
 class NotificationsViewSet(viewsets.ModelViewSet):
 
     queryset = m.Notifications.availables.all()
@@ -222,7 +221,6 @@ class NotificationsViewSet(viewsets.ModelViewSet):
         )
         return self.get_paginated_response(serializer.data)
 
-
     @action(detail=False, url_path='me/reads')
     def my_read_notifications(self, request):
         query_filter = Q(audiences=request.user) & Q(notificationsaudiences__is_read=True)
@@ -237,4 +235,3 @@ class NotificationsViewSet(viewsets.ModelViewSet):
             many=True
         )
         return self.get_paginated_response(serializer.data)
-

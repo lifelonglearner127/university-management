@@ -3,7 +3,7 @@ from django.db import models
 
 class CreatedTimeModel(models.Model):
     """Create time model
-    
+
     Used as base class for models needing create time
     """
     created = models.DateTimeField(

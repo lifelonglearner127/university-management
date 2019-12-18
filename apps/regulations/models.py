@@ -9,7 +9,6 @@ class AttendancePlace(models.Model):
 
     address = models.CharField(
         max_length=500,
-        
     )
 
     longitude = models.DecimalField(

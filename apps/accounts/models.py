@@ -3,6 +3,7 @@ from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 
 from ..core.validators import validate_mobile, validate_username
 
+
 class UserManager(BaseUserManager):
     """Default User Model Manager
     """
