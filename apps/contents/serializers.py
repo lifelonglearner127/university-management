@@ -10,7 +10,7 @@ from ..core.serializers import TMSChoiceField
 class NewsAudiencesAdminSerializer(serializers.ModelSerializer):
     """NewsAudience Serializer for web manager
     """
-    read_on = serializers.DateTimeField(
+    recent_read_on = serializers.DateTimeField(
         format='%Y-%m-%d %H:%M:%S', required=False
     )
     audience = UserNameSerializer(read_only=True)
@@ -83,25 +83,47 @@ class NewsAdminSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class NewsAudiencesAppSerializer(serializers.ModelSerializer):
-    """NewsAudience Serializer for app
+class NewsAppSerializer(serializers.ModelSerializer):
+    """News serializer for teacher app
     """
-    read_on = serializers.DateTimeField(
+    author = UserNameSerializer()
+    created = serializers.DateTimeField(
         format='%Y-%m-%d %H:%M:%S', required=False
     )
-    news = NewsBodylessSerializer()
+    updated = serializers.DateTimeField(
+        format='%Y-%m-%d %H:%M:%S', required=False
+    )
+    meta = serializers.SerializerMethodField()
 
     class Meta:
-        model = m.NewsAudiences
+        model = m.News
         fields = (
-            'news', 'is_read', 'read_on'
+            'id', 'title', 'author', 'is_published', 'is_deleted', 'meta',
+            'created', 'updated'
         )
+
+    def get_meta(self, instance):
+        news_audience = m.NewsAudiences.objects.filter(
+            news=instance,
+            audience=self.context.get('audience', None)
+        ).first()
+        if news_audience:
+            return {
+                'recent_read_on':
+                news_audience.recent_read_on.strftime('%Y-%m-%d %H:%M:%S'),
+                'is_read': news_audience.is_read
+            }
+        else:
+            return {
+                'recent_read_on': None,
+                'is_read': False
+            }
 
 
 class NotificationsAudiencesAdminSerializer(serializers.ModelSerializer):
     """NotificationsAudience Serializer for web manager
     """
-    read_on = serializers.DateTimeField(
+    recent_read_on = serializers.DateTimeField(
         format='%Y-%m-%d %H:%M:%S', required=False
     )
     audience = UserNameSerializer(read_only=True)
@@ -139,19 +161,6 @@ class NotificationSerializer(serializers.ModelSerializer):
         return ret
 
 
-class NotificationsDataSerializer(serializers.ModelSerializer):
-    """Serializer for notification
-    """
-    author = UserNameSerializer(read_only=True)
-    status = TMSChoiceField(m.Notifications.STATUS)
-
-    class Meta:
-        model = m.Notifications
-        fields = (
-            'id', 'title', 'body', 'author', 'status',
-        )
-
-
 class NotificationsAdminSerializer(serializers.ModelSerializer):
     """Notification Serializer for web manager
 
@@ -167,22 +176,45 @@ class NotificationsAdminSerializer(serializers.ModelSerializer):
     audiences = NotificationsAudiencesAdminSerializer(
         source='notificationsaudiences_set', many=True, read_only=True
     )
+    status = TMSChoiceField(m.Notifications.STATUS)
 
     class Meta:
         model = m.Notifications
         fields = '__all__'
 
 
-class NotificationsAudiencesAppSerializer(serializers.ModelSerializer):
-    """NotificationsAudience Serializer for app
+class NotificationsAppSerializer(serializers.ModelSerializer):
+    """Notifications Serializer for teacher app
     """
-    read_on = serializers.DateTimeField(
+    status = TMSChoiceField(m.Notifications.STATUS)
+    created = serializers.DateTimeField(
         format='%Y-%m-%d %H:%M:%S', required=False
     )
-    notification = NotificationsDataSerializer()
+    updated = serializers.DateTimeField(
+        format='%Y-%m-%d %H:%M:%S', required=False
+    )
+    meta = serializers.SerializerMethodField()
 
     class Meta:
-        model = m.NotificationsAudiences
+        model = m.Notifications
         fields = (
-            'notification', 'is_read', 'read_on'
+            'id', 'title', 'body', 'author', 'status', 'meta',
+            'created', 'updated',
         )
+
+    def get_meta(self, instance):
+        notification_audience = m.NotificationsAudiences.objects.filter(
+            notification=instance,
+            audience=self.context.get('audience', None)
+        ).first()
+        if notification_audience:
+            return {
+                'recent_read_on':
+                notification_audience.recent_read_on.strftime('%Y-%m-%d %H:%M:%S'),
+                'is_read': notification_audience.is_read
+            }
+        else:
+            return {
+                'recent_read_on': None,
+                'is_read': False
+            }

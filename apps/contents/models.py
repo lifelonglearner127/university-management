@@ -60,7 +60,7 @@ class NewsAudiences(models.Model):
         default=False
     )
 
-    read_on = models.DateTimeField(
+    recent_read_on = models.DateTimeField(
         null=True,
         blank=True
     )
@@ -130,7 +130,7 @@ class NotificationsAudiences(models.Model):
         default=False
     )
 
-    read_on = models.DateTimeField(
+    recent_read_on = models.DateTimeField(
         null=True,
         blank=True
     )
