@@ -1,0 +1,1985 @@
+{
+	"info": {
+		"_postman_id": "0f996294-a1b8-4fe8-8d44-ea7e68a95234",
+		"name": "School System",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "App",
+			"item": [
+				{
+					"name": "Teachers",
+					"item": [
+						{
+							"name": "Department",
+							"item": [
+								{
+									"name": "Create Department",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"name\": \"Department\",\n\t\"description\": \"Description\"\n\t\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/teachers/departments",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"teachers",
+												"departments"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update Department",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"name\": \"Department 2\",\n\t\"description\": \"Description 2\"\n\t\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/teachers/departments/1",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"teachers",
+												"departments",
+												"1"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Delete Department",
+									"request": {
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"name\": \"Department 2\",\n\t\"description\": \"Description 2\"\n\t\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/teachers/departments/1",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"teachers",
+												"departments",
+												"1"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List Department",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "JWT {{authToken}}",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/teachers/departments",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"teachers",
+												"departments"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List Department Witout pagination",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/teachers/departments/all",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"teachers",
+												"departments",
+												"all"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "Profile",
+							"item": [],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Regulation",
+					"item": [
+						{
+							"name": "Attendance Place",
+							"item": [
+								{
+									"name": "Create Attendance Place",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"name\": \"name\",\n\t\"address\": \"address\",\n\t\"longitude\": 107.123,\n\t\"latitude\": 38.123,\n\t\"radius\": 100\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/regulations/attendance-places",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"regulations",
+												"attendance-places"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update Attendance Place",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"name\": \"name2\",\n\t\"address\": \"address\",\n\t\"longitude\": 107.123,\n\t\"latitude\": 38.123,\n\t\"radius\": 100\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/regulations/attendance-places/1",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"regulations",
+												"attendance-places",
+												"1"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Delete Attendance Place",
+									"request": {
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"name\": \"Department 2\",\n\t\"description\": \"Description 2\"\n\t\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/regulations/attendance-places/1",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"regulations",
+												"attendance-places",
+												"1"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List Attendance Place",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "JWT {{authToken}}",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/regulations/attendance-places",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"regulations",
+												"attendance-places"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List Attendance Place Witout pagination",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/regulations/attendance-places/all",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"regulations",
+												"attendance-places",
+												"all"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List Attendance Place names Witout pagination",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/regulations/attendance-places/all/names",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"regulations",
+												"attendance-places",
+												"all",
+												"names"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "Attendance time",
+							"item": [
+								{
+									"name": "Create Attendance time",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"name\": \"name\",\n\t\"description\": \"address\",\n\t\"slots\": [\n\t\t{\n\t\t\t\"openTime\": \"08:30\",\n\t\t\t\"startOpenTime\": \"08:00\",\n\t\t\t\"finishOpenTime\": \"09:00\",\n\t\t\t\"closeTime\": \"18:30\",\n\t\t\t\"startCloseTime\": \"18:00\",\n\t\t\t\"finishCloseTime\": \"19:00\"\n\t\t}\n\t]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/regulations/attendance-times",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"regulations",
+												"attendance-times"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update Attendance time",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"name\": \"name\",\n\t\"description\": \"address\",\n\t\"slots\": [\n\t\t{\n\t\t\t\"openTime\": \"08:30\",\n\t\t\t\"startOpenTime\": \"08:00\",\n\t\t\t\"finishOpenTime\": \"09:00\",\n\t\t\t\"closeTime\": \"18:30\",\n\t\t\t\"startCloseTime\": \"18:00\",\n\t\t\t\"finishCloseTime\": \"19:00\"\n\t\t}\n\t]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/regulations/attendance-times/1",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"regulations",
+												"attendance-times",
+												"1"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Delete Attendance time",
+									"request": {
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"name\": \"Department 2\",\n\t\"description\": \"Description 2\"\n\t\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/regulations/attendance-times/1",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"regulations",
+												"attendance-times",
+												"1"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List Attendance time",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "JWT {{authToken}}",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/regulations/attendance-times",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"regulations",
+												"attendance-times"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List Attendance time Witout pagination",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/regulations/attendance-times/all",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"regulations",
+												"attendance-times",
+												"all"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List Attendance time names Witout pagination",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/regulations/attendance-times/all/names",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"regulations",
+												"attendance-times",
+												"all",
+												"names"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Contents",
+					"item": [
+						{
+							"name": "News",
+							"item": [
+								{
+									"name": "List My news",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/contents/news/me/all",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"contents",
+												"news",
+												"me",
+												"all"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List My read news",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/contents/news/me/reads",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"contents",
+												"news",
+												"me",
+												"reads"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List My unread news",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/contents/news/me/unreads",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"contents",
+												"news",
+												"me",
+												"unreads"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Read my news",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/contents/news/2/read",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"contents",
+												"news",
+												"2",
+												"read"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get my unread news count",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/contents/news/me/unread-count",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"contents",
+												"news",
+												"me",
+												"unread-count"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "Notifications",
+							"item": [
+								{
+									"name": "List My notifications",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/contents/notifications/me/all",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"contents",
+												"notifications",
+												"me",
+												"all"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List My read notifications",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/contents/notifications/me/reads",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"contents",
+												"notifications",
+												"me",
+												"reads"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List My unread notifications",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/contents/notifications/me/unreads",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"contents",
+												"notifications",
+												"me",
+												"unreads"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List Read my notifications",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/contents/notifications/2/read",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"contents",
+												"notifications",
+												"2",
+												"read"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Authentication",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "e64fa384-f49d-4dce-be2c-673895f5aadd",
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.environment.set('authToken', pm.response.json().token)",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"username\": \"admin\",\n\t\"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/api/accounts/auth/obtain_token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"accounts",
+								"auth",
+								"obtain_token"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Web",
+			"item": [
+				{
+					"name": "Teachers",
+					"item": [
+						{
+							"name": "Department",
+							"item": [
+								{
+									"name": "Create Department",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"name\": \"Department\",\n\t\"description\": \"Description\"\n\t\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/teachers/departments",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"teachers",
+												"departments"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update Department",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"name\": \"Department 2\",\n\t\"description\": \"Description 2\"\n\t\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/teachers/departments/1",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"teachers",
+												"departments",
+												"1"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Delete Department",
+									"request": {
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"name\": \"Department 2\",\n\t\"description\": \"Description 2\"\n\t\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/teachers/departments/1",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"teachers",
+												"departments",
+												"1"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List Department",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "JWT {{authToken}}",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/teachers/departments",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"teachers",
+												"departments"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List Department Witout pagination",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/teachers/departments/all",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"teachers",
+												"departments",
+												"all"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "Profile",
+							"item": [],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Regulation",
+					"item": [
+						{
+							"name": "Attendance Place",
+							"item": [
+								{
+									"name": "Create Attendance Place",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"name\": \"name\",\n\t\"address\": \"address\",\n\t\"longitude\": 107.123,\n\t\"latitude\": 38.123,\n\t\"radius\": 100\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/regulations/attendance-places",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"regulations",
+												"attendance-places"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update Attendance Place",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"name\": \"name2\",\n\t\"address\": \"address\",\n\t\"longitude\": 107.123,\n\t\"latitude\": 38.123,\n\t\"radius\": 100\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/regulations/attendance-places/1",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"regulations",
+												"attendance-places",
+												"1"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Delete Attendance Place",
+									"request": {
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"name\": \"Department 2\",\n\t\"description\": \"Description 2\"\n\t\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/regulations/attendance-places/1",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"regulations",
+												"attendance-places",
+												"1"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List Attendance Place",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "JWT {{authToken}}",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/regulations/attendance-places",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"regulations",
+												"attendance-places"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List Attendance Place Witout pagination",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/regulations/attendance-places/all",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"regulations",
+												"attendance-places",
+												"all"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List Attendance Place names Witout pagination",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/regulations/attendance-places/all/names",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"regulations",
+												"attendance-places",
+												"all",
+												"names"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "Attendance time",
+							"item": [
+								{
+									"name": "Create Attendance time",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"name\": \"name\",\n\t\"description\": \"address\",\n\t\"slots\": [\n\t\t{\n\t\t\t\"openTime\": \"08:30\",\n\t\t\t\"startOpenTime\": \"08:00\",\n\t\t\t\"finishOpenTime\": \"09:00\",\n\t\t\t\"closeTime\": \"18:30\",\n\t\t\t\"startCloseTime\": \"18:00\",\n\t\t\t\"finishCloseTime\": \"19:00\"\n\t\t}\n\t]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/regulations/attendance-times",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"regulations",
+												"attendance-times"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update Attendance time",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"name\": \"name\",\n\t\"description\": \"address\",\n\t\"slots\": [\n\t\t{\n\t\t\t\"openTime\": \"08:30\",\n\t\t\t\"startOpenTime\": \"08:00\",\n\t\t\t\"finishOpenTime\": \"09:00\",\n\t\t\t\"closeTime\": \"18:30\",\n\t\t\t\"startCloseTime\": \"18:00\",\n\t\t\t\"finishCloseTime\": \"19:00\"\n\t\t}\n\t]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/regulations/attendance-times/1",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"regulations",
+												"attendance-times",
+												"1"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Delete Attendance time",
+									"request": {
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"name\": \"Department 2\",\n\t\"description\": \"Description 2\"\n\t\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/regulations/attendance-times/1",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"regulations",
+												"attendance-times",
+												"1"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List Attendance time",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "JWT {{authToken}}",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/regulations/attendance-times",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"regulations",
+												"attendance-times"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List Attendance time Witout pagination",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/regulations/attendance-times/all",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"regulations",
+												"attendance-times",
+												"all"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List Attendance time names Witout pagination",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/regulations/attendance-times/all/names",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"regulations",
+												"attendance-times",
+												"all",
+												"names"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Contents",
+					"item": [
+						{
+							"name": "News",
+							"item": [
+								{
+									"name": "Create News",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"title\": \"News title\",\n\t\"body\": \"News body\",\n\t\"author\": 1,\n\t\"audiences\": [3, 4, 5]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/contents/news",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"contents",
+												"news"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update News",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"title\": \"News title\",\n\t\"body\": \"News body\",\n\t\"author\": 1,\n\t\"audiences\": [2]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/contents/news/5",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"contents",
+												"news",
+												"5"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Delete News",
+									"request": {
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"name\": \"Department 2\",\n\t\"description\": \"Description 2\"\n\t\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/contents/news/2",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"contents",
+												"news",
+												"2"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List News",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "JWT {{authToken}}",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/contents/news",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"contents",
+												"news"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Publish News",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/contents/news/3/publish",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"contents",
+												"news",
+												"3",
+												"publish"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "Notifications",
+							"item": [
+								{
+									"name": "Create Notifications",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"title\": \"News title\",\n\t\"body\": \"News body\",\n\t\"author\": 1,\n\t\"audiences\": [3, 4, 5]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/contents/notifications",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"contents",
+												"notifications"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update Notifications",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"title\": \"News title\",\n\t\"body\": \"News body\",\n\t\"author\": 1,\n\t\"audiences\": [2]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/contents/notifications/2",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"contents",
+												"notifications",
+												"2"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Delete Notifications",
+									"request": {
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"name\": \"Department 2\",\n\t\"description\": \"Description 2\"\n\t\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/contents/notifications/1",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"contents",
+												"notifications",
+												"1"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List Notifications",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "JWT {{authToken}}",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/contents/notifications",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"contents",
+												"notifications"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Send Notifications",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/contents/notifications/1/send",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"contents",
+												"notifications",
+												"1",
+												"send"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Authentication",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "e64fa384-f49d-4dce-be2c-673895f5aadd",
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.environment.set('authToken', pm.response.json().token)",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"username\": \"admin\",\n\t\"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/api/accounts/auth/obtain_token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"accounts",
+								"auth",
+								"obtain_token"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
