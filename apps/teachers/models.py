@@ -16,8 +16,8 @@ class Department(models.Model):
     )
 
 
-class Profile(models.Model):
-    """Teacher profile model
+class Teacher(models.Model):
+    """Teacher model
     """
     GENDER_MALE = 'M'
     GENDER_FEMALE = 'F'
@@ -27,7 +27,8 @@ class Profile(models.Model):
     )
     user = models.OneToOneField(
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='profile'
     )
 
     department = models.ForeignKey(
@@ -47,3 +48,21 @@ class Profile(models.Model):
         null=True,
         blank=True
     )
+
+    def __str__(self):
+        return f"{self.user.name}'s profile"
+
+
+def image_path(instance, filename):
+    return f"{instance.teacher.user.username}/{filename}"
+
+
+class TeacherImage(models.Model):
+
+    teacher = models.ForeignKey(
+        Teacher,
+        on_delete=models.CASCADE,
+        related_name="images"
+    )
+
+    image = models.ImageField(upload_to=image_path)

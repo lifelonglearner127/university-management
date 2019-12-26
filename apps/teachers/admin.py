@@ -8,6 +8,10 @@ class DepartmentAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(m.Profile)
-class ProfileAdmin(admin.ModelAdmin):
-    pass
+class TeacherImageInline(admin.TabularInline):
+    model = m.TeacherImage
+
+
+@admin.register(m.Teacher)
+class TeacherAdmin(admin.ModelAdmin):
+    inlines = [TeacherImageInline, ]
