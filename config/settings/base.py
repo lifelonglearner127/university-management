@@ -144,6 +144,7 @@ STATICFILES_FINDERS = [
 # ----------------------------------------------------------------------------
 MEDIA_URL =  '/media/'
 MEDIA_ROOT = str(ROOT_DIR("media"))
+FEATURE_ROOT = str(ROOT_DIR("features"))
 
 
 
