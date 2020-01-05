@@ -18,6 +18,6 @@ class AttendanceTimeAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(m.AttendanceManagement)
-class AttendanceManagementAdmin(admin.ModelAdmin):
+@admin.register(m.AttendanceRule)
+class AttendanceRuleAdmin(admin.ModelAdmin):
     pass
