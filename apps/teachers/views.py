@@ -32,6 +32,53 @@ class TeacherViewSet(viewsets.ModelViewSet):
     queryset = m.TeacherProfile.objects.all()
     serializer_class = s.TeacherProfileSerializer
 
+    def create(self, request):
+        context = {
+            'user': request.data.pop('user')
+        }
+
+        serializer = s.TeacherProfileSerializer(
+            data=request.data,
+            context=context
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED
+        )
+
+    def update(self, request, pk=None):
+        instance = self.get_object()
+
+        context = {
+            'user': request.data.pop('user')
+        }
+        serializer = s.TeacherProfileSerializer(
+            instance,
+            data=request.data,
+            context=context
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
+
+    def destroy(self, request, pk=None):
+        instance = self.get_object()
+        instance.user.delete()
+
+        return Response(
+            {
+                "msg": "Deleted Successfully"
+            },
+            status=status.HTTP_204_NO_CONTENT
+        )
+
     @action(detail=False, methods=['post'], url_path="me/upload-images")
     def upload_my_images(self, request):
         my_profile = request.user.profile

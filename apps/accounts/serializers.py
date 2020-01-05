@@ -157,3 +157,12 @@ class UserNameSerializer(serializers.ModelSerializer):
 
     def get_name(self, instance):
         return instance.name if instance.name else instance.username
+
+
+class ShortUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = m.User
+        fields = (
+            'id', 'username', 'name', 'mobile',
+        )

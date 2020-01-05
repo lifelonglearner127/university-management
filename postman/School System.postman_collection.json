@@ -1305,7 +1305,164 @@
 						},
 						{
 							"name": "Profile",
-							"item": [],
+							"item": [
+								{
+									"name": "Create Profile",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"user\": {\n\t\t\"username\": \"kjh\",\n\t\t\"name\": \"Kim Jin Hyok\",\n\t\t\"mobile\": \"111\",\n\t\t\"password\": \"123\"\n\t},\n\t\"department\": 1,\n\t\"gender\": {\n\t\t\"value\": \"M\"\n\t}\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/teachers/teachers",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"teachers",
+												"teachers"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update Profile",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"user\": {\n\t\t\"username\": \"kjah\",\n\t\t\"name\": \"Kim Jin Hyok\",\n\t\t\"mobile\": \"111\",\n\t\t\"password\": \"123\"\n\t},\n\t\"department\": 1,\n\t\"gender\": {\n\t\t\"value\": \"F\",\n\t\t\"text\": \"Fe\"\n\t}\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/teachers/teachers/3",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"teachers",
+												"teachers",
+												"3"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List Profiles",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"name\": \"Department\",\n\t\"description\": \"Description\"\n\t\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/teachers/teachers",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"teachers",
+												"teachers"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Delete Profile",
+									"request": {
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "JWT {{authToken}}"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/api/teachers/teachers/2",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"teachers",
+												"teachers",
+												"2"
+											]
+										}
+									},
+									"response": []
+								}
+							],
 							"protocolProfileBehavior": {},
 							"_postman_isSubFolder": true
 						}
@@ -2137,7 +2294,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"username\": \"admin\",\n\t\"password\": \"admin123\"\n}"
+							"raw": "{\n\t\"username\": \"kjh\",\n\t\"password\": \"123\"\n}"
 						},
 						"url": {
 							"raw": "{{url}}/api/accounts/auth/obtain_token",
