@@ -8,6 +8,6 @@ class DepartmentAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(m.Profile)
-class ProfileAdmin(admin.ModelAdmin):
+@admin.register(m.TeacherProfile)
+class TeacherProfileAdmin(admin.ModelAdmin):
     pass

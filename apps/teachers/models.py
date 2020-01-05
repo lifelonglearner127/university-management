@@ -16,7 +16,7 @@ class Department(models.Model):
     )
 
 
-class Profile(models.Model):
+class TeacherProfile(models.Model):
     """Teacher profile model
     """
     GENDER_MALE = 'M'

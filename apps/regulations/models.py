@@ -1,4 +1,5 @@
 from django.db import models
+from ..teachers.models import TeacherProfile
 
 
 class AttendancePlace(models.Model):

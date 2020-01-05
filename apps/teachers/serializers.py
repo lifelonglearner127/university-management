@@ -10,8 +10,8 @@ class DepartmentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ProfileSerializer(serializers.ModelSerializer):
+class TeacherProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = m.Profile
+        model = m.TeacherProfile
         fields = '__all__'
