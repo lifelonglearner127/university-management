@@ -44,11 +44,6 @@ class TeacherProfile(models.Model):
         default=GENDER_MALE
     )
 
-    avatar = models.ImageField(
-        null=True,
-        blank=True
-    )
-
     def __str__(self):
         return f"{self.user.name}'s profile"
 

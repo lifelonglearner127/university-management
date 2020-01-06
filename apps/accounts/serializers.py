@@ -25,22 +25,14 @@ def jwt_encode_handler(payload):
     ).decode('utf-8')
 
 
-class AuthSerializer(serializers.ModelSerializer):
+class AuthSerializer(serializers.Serializer):
     """
     Serializer for auth data of user
     """
-    class Meta:
-        model = m.User
-        fields = (
-            'id', 'username', 'name'
-        )
-
-    def to_representation(self, instance):
-        ret = super().to_representation(instance)
-        if ret['name'] is None:
-            ret['name'] = instance.username
-
-        return ret
+    id = serializers.IntegerField()
+    username = serializers.CharField()
+    name = serializers.CharField()
+    avatar = serializers.CharField()
 
 
 class ObtainJWTSerializer(serializers.Serializer):
