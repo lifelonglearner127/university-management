@@ -19,6 +19,16 @@ class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = m.Department.objects.all()
     serializer_class = s.DepartmentSerializer
 
+    @action(detail=False, methods=['post'], url_path="bulk-delete")
+    def bulk_delete(slef, request):
+        m.Department.objects.filter(id__in=request.data.get('ids', [])).delete()
+        return Response(
+            {
+                'msg': 'Delete successfully'
+            },
+            status=status.HTTP_200_OK
+        )
+
     @action(detail=False, url_path="all")
     def get_all_departments(self, request):
         return Response(
