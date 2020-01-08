@@ -8,16 +8,28 @@ from django.conf import settings
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from drf_renderer_xlsx.mixins import XLSXFileMixin
+from drf_renderer_xlsx.renderers import XLSXRenderer
 
 from . import models as m
 from . import serializers as s
+from ..core.export import EXCEL_BODY_STYLE, EXCEL_HEAD_STYLE
 from .tasks import extract_feature
 
 
-class DepartmentViewSet(viewsets.ModelViewSet):
+class DepartmentViewSet(XLSXFileMixin, viewsets.ModelViewSet):
 
     queryset = m.Department.objects.all()
     serializer_class = s.DepartmentSerializer
+    body = EXCEL_BODY_STYLE
+
+    def get_column_header(self):
+        ret = EXCEL_HEAD_STYLE
+        ret['titles'] = [
+            '编号', '部门名称', '备注',
+
+        ]
+        return ret
 
     @action(detail=False, methods=['post'], url_path="bulk-delete")
     def bulk_delete(slef, request):
@@ -33,6 +45,14 @@ class DepartmentViewSet(viewsets.ModelViewSet):
     def get_all_departments(self, request):
         return Response(
             self.serializer_class(self.queryset, many=True).data,
+            status=status.HTTP_200_OK
+        )
+
+    @action(detail=False, url_path="export", renderer_classes=[XLSXRenderer])
+    def export(self, request):
+        queryset = self.get_queryset()
+        return Response(
+            self.serializer_class(queryset, many=True).data,
             status=status.HTTP_200_OK
         )
 
