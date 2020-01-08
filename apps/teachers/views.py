@@ -5,6 +5,7 @@ import pickle
 import six
 import face_recognition
 from django.conf import settings
+from django.db.models import Q
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -30,6 +31,14 @@ class DepartmentViewSet(XLSXFileMixin, viewsets.ModelViewSet):
 
         ]
         return ret
+
+    def get_queryset(self):
+        queryset = self.queryset
+        query_str = self.request.query_params.get('q', None)
+        if query_str:
+            queryset = queryset.filter(Q(name__icontains=query_str) | Q(description__icontains=query_str))
+
+        return queryset
 
     @action(detail=False, methods=['post'], url_path="bulk-delete")
     def bulk_delete(slef, request):
