@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from django.db.models import Q
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -14,6 +14,18 @@ class NewsViewSet(viewsets.ModelViewSet):
     queryset = m.News.availables.all()
     serializer_class = s.NewsSerializer
 
+    def get_queryset(self):
+        queryset = self.queryset
+        query_str = self.request.query_params.get('q', None)
+        if query_str:
+            queryset = queryset.filter(title__icontains=query_str)
+
+        sort_str = self.request.query_params.get('sort', None)
+        if sort_str:
+            queryset = queryset.order_by(sort_str)
+
+        return queryset
+
     def destroy(self, request, pk=None):
         instance = self.get_object()
         instance.is_deleted = True
@@ -23,11 +35,22 @@ class NewsViewSet(viewsets.ModelViewSet):
             status=status.HTTP_204_NO_CONTENT
         )
 
+    @action(detail=False, methods=['post'], url_path="bulk-delete")
+    def bulk_delete(slef, request):
+        m.News.objects.filter(id__in=request.data.get('ids', [])).delete()
+        return Response(
+            {
+                'msg': 'Delete successfully'
+            },
+            status=status.HTTP_200_OK
+        )
+
     @action(detail=True, url_path='publish')
     def publish(self, request, pk=None):
         instance = self.get_object()
         if not instance.is_published:
             instance.is_published = True
+            instance.published_date = date.today()
             instance.save()
             publish_news.apply_async(
                 args=[{

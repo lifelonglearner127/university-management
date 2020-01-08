@@ -26,6 +26,11 @@ class News(TimeStampedModel):
         default=False
     )
 
+    published_date = models.DateField(
+        null=True,
+        blank=True
+    )
+
     is_deleted = models.BooleanField(
         default=False
     )
