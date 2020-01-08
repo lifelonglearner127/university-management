@@ -38,6 +38,10 @@ class DepartmentViewSet(XLSXFileMixin, viewsets.ModelViewSet):
         if query_str:
             queryset = queryset.filter(Q(name__icontains=query_str) | Q(description__icontains=query_str))
 
+        sort_str = self.request.query_params.get('sort', None)
+        if sort_str:
+            queryset = queryset.order_by(sort_str)
+
         return queryset
 
     @action(detail=False, methods=['post'], url_path="bulk-delete")
