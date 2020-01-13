@@ -5,6 +5,7 @@ from . import views as v
 
 router = DefaultRouter(trailing_slash=False)
 router.register(r'departments', v.DepartmentViewSet)
+router.register(r'positions', v.PositionViewSet)
 router.register(r'teachers', v.TeacherViewSet)
 
 urlpatterns = [

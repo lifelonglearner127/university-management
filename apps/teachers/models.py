@@ -1,9 +1,10 @@
 from django.db import models
 
 from ..accounts.models import User
+from ..core.models import TimeStampedModel
 
 
-class Department(models.Model):
+class Department(TimeStampedModel):
     """Teacher Department model
     """
     name = models.CharField(
@@ -16,7 +17,20 @@ class Department(models.Model):
     )
 
 
-class TeacherProfile(models.Model):
+class Position(TimeStampedModel):
+    """Teacher Position model
+    """
+    name = models.CharField(
+        max_length=100
+    )
+
+    description = models.TextField(
+        null=True,
+        blank=True,
+    )
+
+
+class TeacherProfile(TimeStampedModel):
     """Teacher profile model
     """
     GENDER_MALE = 'M'
@@ -31,8 +45,21 @@ class TeacherProfile(models.Model):
         related_name='profile'
     )
 
+    work_no = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True
+    )
+
     department = models.ForeignKey(
         Department,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    position = models.ForeignKey(
+        Position,
         on_delete=models.SET_NULL,
         null=True,
         blank=True
