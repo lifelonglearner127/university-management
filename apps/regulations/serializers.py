@@ -12,6 +12,15 @@ class AttendancePlaceNameSerializer(serializers.ModelSerializer):
         )
 
 
+class AttendancePlaceExportSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = m.AttendancePlace
+        fields = (
+            'name', 'address', 'longitude', 'latitude', 'radius'
+        )
+
+
 class AttendancePlaceSerializer(serializers.ModelSerializer):
 
     class Meta:

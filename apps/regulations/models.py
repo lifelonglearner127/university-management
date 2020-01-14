@@ -1,9 +1,10 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from ..teachers.models import TeacherProfile
+from ..core.models import TimeStampedModel
 
 
-class AttendancePlace(models.Model):
+class AttendancePlace(TimeStampedModel):
 
     name = models.CharField(
         max_length=100
@@ -43,7 +44,7 @@ class TimeSlot(models.Model):
     finish_close_time = models.TimeField()
 
 
-class AttendanceTime(models.Model):
+class AttendanceTime(TimeStampedModel):
 
     name = models.CharField(
         max_length=100
@@ -57,7 +58,7 @@ class AttendanceTime(models.Model):
     slots = models.ManyToManyField(TimeSlot)
 
 
-class AttendanceRule(models.Model):
+class AttendanceRule(TimeStampedModel):
 
     attendees = models.ManyToManyField(
         TeacherProfile,

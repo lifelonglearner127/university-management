@@ -58,7 +58,7 @@ class DepartmentViewSet(XLSXFileMixin, viewsets.ModelViewSet):
     @action(detail=False, url_path="all")
     def get_all_departments(self, request):
         return Response(
-            self.serializer_class(self.queryset, many=True).data,
+            self.serializer_class(m.Department.objects.all(), many=True).data,
             status=status.HTTP_200_OK
         )
 
@@ -110,7 +110,7 @@ class PositionViewSet(XLSXFileMixin, viewsets.ModelViewSet):
     @action(detail=False, url_path="all")
     def get_all_positions(self, request):
         return Response(
-            self.serializer_class(self.queryset, many=True).data,
+            self.serializer_class(m.Position.objects.all(), many=True).data,
             status=status.HTTP_200_OK
         )
 
