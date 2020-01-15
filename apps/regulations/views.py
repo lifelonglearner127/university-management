@@ -109,7 +109,7 @@ class AttendanceTimeViewSet(XLSXFileMixin, viewsets.ModelViewSet):
             close_time = time.strptime(time_slot["close_time"], '%H:%M')
             start_close_time = time.strptime(time_slot["start_close_time"], '%H:%M')
             finish_close_time = time.strptime(time_slot["finish_close_time"], '%H:%M')
-            
+
             if start_open_time > open_time or open_time > finish_open_time or finish_open_time > start_close_time or\
                start_close_time > close_time or close_time > finish_close_time:
                 return Response(
@@ -119,7 +119,7 @@ class AttendanceTimeViewSet(XLSXFileMixin, viewsets.ModelViewSet):
                     },
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            
+
         serializer = self.serializer_class(
             data=request.data,
             context=context

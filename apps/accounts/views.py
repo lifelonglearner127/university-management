@@ -1,8 +1,10 @@
-from rest_framework import status
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from . import serializers as s
+from . import models as m
 from ..teachers.models import TeacherProfile
 
 
@@ -58,3 +60,16 @@ class VerifyJWTAPIView(JWTAPIView):
     user data if it is valid.
     """
     serializer_class = s.VerifyJWTSerializer
+
+
+class UserViewSet(viewsets.ModelViewSet):
+
+    queryset = m.User.objects.all()
+    serializer_class = s.UserSerializer
+
+    @action(detail=False, url_path='names/all')
+    def get_all_names(self, request):
+        return Response(
+            s.UserNameSerializer(m.User.objects.all(), many=True).data,
+            status=status.HTTP_200_OK
+        )

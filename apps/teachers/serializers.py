@@ -1,5 +1,4 @@
 from django.shortcuts import get_object_or_404
-from django.db.models import Q
 from rest_framework import serializers
 
 from . import models as m
@@ -71,6 +70,18 @@ class TeacherImageSetSerializer(serializers.ModelSerializer):
         )
 
 
+class ShortTeacherProfileSerializer(serializers.ModelSerializer):
+
+    name = serializers.CharField(source='user.name')
+    department = DepartmentSerializer()
+
+    class Meta:
+        model = m.TeacherProfile
+        fields = (
+            'id', 'name', 'department'
+        )
+
+
 class TeacherProfileSerializer(serializers.ModelSerializer):
 
     user = ShortUserSerializer(read_only=True)
@@ -98,7 +109,6 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
         position_data = self.context.pop('position', None)
         if position_data and position_data.get('id', None):
             position = get_object_or_404(m.Position, id=position_data.get('id'))
-
 
         user_password = user_data.pop('password', None)
         user = m.User(**user_data)

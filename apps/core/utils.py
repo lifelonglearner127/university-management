@@ -15,4 +15,4 @@ for (i, image_path) in enumerate(image_paths):
     print(f"[INFO] processing {i} of {len(image_paths)} images...")
     image = cv2.imread(image_path)
     image = imutils.resize(image, width=args["width"])
-    cv2.imwrite(image_path, image)    
+    cv2.imwrite(image_path, image)

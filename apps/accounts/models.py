@@ -26,6 +26,7 @@ class UserManager(BaseUserManager):
         user = self.create_user(
             username,
             password=password,
+            name=username,
             **extra_fields
         )
 

@@ -6,7 +6,7 @@ import six
 import face_recognition
 from django.conf import settings
 from django.db.models import Q
-from rest_framework import viewsets, status, mixins
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
@@ -142,6 +142,10 @@ class TeacherViewSet(XLSXFileMixin, viewsets.ModelViewSet):
         if query_str:
             queryset = queryset.filter(Q(user__name__icontains=query_str) | Q(work_no=query_str))
 
+        department_query = self.request.query_params.get('departments', [])
+        if department_query:
+            queryset = queryset.filter(department__id__in=department_query)
+
         sort_str = self.request.query_params.get('sort', None)
         if sort_str:
             queryset = queryset.order_by(sort_str)
@@ -223,6 +227,12 @@ class TeacherViewSet(XLSXFileMixin, viewsets.ModelViewSet):
             },
             status=status.HTTP_204_NO_CONTENT
         )
+
+    @action(detail=False, url_path='short')
+    def get_short_profiles(self, request):
+        page = self.paginate_queryset(self.get_queryset())
+        serializer = s.ShortTeacherProfileSerializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
     @action(detail=False, methods=['post'], url_path="bulk-delete")
     def bulk_delete(self, request):

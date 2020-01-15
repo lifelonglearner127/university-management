@@ -1,6 +1,5 @@
 {
     "python.pythonPath": "/home/dev/.virtualenvs/university-management/bin/python",
-    "python.linting.enabled": false,
     "python.linting.flake8Enabled": true,
     "editor.rulers": [120]
 }

@@ -159,7 +159,7 @@ class AttendanceMembership(models.Model):
 
 
 class UnAttendenceMembership(models.Model):
-    
+
     teacher = models.ForeignKey(
         TeacherProfile,
         on_delete=models.CASCADE

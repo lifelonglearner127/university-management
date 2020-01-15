@@ -20,7 +20,7 @@ class NewsAudiencesAdminSerializer(serializers.ModelSerializer):
         )
 
 
-class NewsBodylessSerializer(serializers.ModelSerializer):
+class NewsListSerializer(serializers.ModelSerializer):
     """News Serializer without news body
 
     This serializer is used for listing news in apps
@@ -30,7 +30,7 @@ class NewsBodylessSerializer(serializers.ModelSerializer):
     class Meta:
         model = m.News
         fields = (
-            'id', 'title', 'author', 'is_published',
+            'id', 'title', 'author', 'is_published', 'published_date',
         )
 
 

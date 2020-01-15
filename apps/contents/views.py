@@ -26,6 +26,11 @@ class NewsViewSet(viewsets.ModelViewSet):
 
         return queryset
 
+    def list(self, request):
+        page = self.paginate_queryset(m.News.availables.all())
+        serializer = s.NewsListSerializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
+
     def destroy(self, request, pk=None):
         instance = self.get_object()
         instance.is_deleted = True

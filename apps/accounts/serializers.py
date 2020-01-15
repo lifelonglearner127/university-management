@@ -139,16 +139,11 @@ class VerifyJWTSerializer(VerificationBaseSerializer):
 
 class UserNameSerializer(serializers.ModelSerializer):
 
-    name = serializers.SerializerMethodField()
-
     class Meta:
         model = m.User
         fields = (
             'id', 'name'
         )
-
-    def get_name(self, instance):
-        return instance.name if instance.name else instance.username
 
 
 class ShortUserSerializer(serializers.ModelSerializer):
@@ -158,3 +153,10 @@ class ShortUserSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'username', 'name', 'mobile',
         )
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = m.User
+        fields = '__all__'
