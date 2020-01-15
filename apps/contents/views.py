@@ -27,7 +27,7 @@ class NewsViewSet(viewsets.ModelViewSet):
         return queryset
 
     def list(self, request):
-        page = self.paginate_queryset(m.News.availables.all())
+        page = self.paginate_queryset(self.get_queryset())
         serializer = s.NewsListSerializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 

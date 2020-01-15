@@ -73,12 +73,13 @@ class TeacherImageSetSerializer(serializers.ModelSerializer):
 class ShortTeacherProfileSerializer(serializers.ModelSerializer):
 
     name = serializers.CharField(source='user.name')
+    user_id = serializers.IntegerField(source='user.id')
     department = DepartmentSerializer()
 
     class Meta:
         model = m.TeacherProfile
         fields = (
-            'id', 'name', 'department'
+            'id', 'user_id', 'name', 'department'
         )
 
 
