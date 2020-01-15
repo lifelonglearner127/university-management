@@ -142,9 +142,10 @@ class TeacherViewSet(XLSXFileMixin, viewsets.ModelViewSet):
         if query_str:
             queryset = queryset.filter(Q(user__name__icontains=query_str) | Q(work_no=query_str))
 
-        department_query = self.request.query_params.get('departments', [])
+        department_query = self.request.query_params.get('departments', None)
         if department_query:
-            queryset = queryset.filter(department__id__in=department_query)
+            departments = department_query.split(',')
+            queryset = queryset.filter(department__id__in=departments)
 
         sort_str = self.request.query_params.get('sort', None)
         if sort_str:
