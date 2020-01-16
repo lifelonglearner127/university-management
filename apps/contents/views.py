@@ -195,9 +195,9 @@ class NewsViewSet(viewsets.ModelViewSet):
         )
 
 
-class NotificationsViewSet(viewsets.ModelViewSet):
+class NotificationViewSet(viewsets.ModelViewSet):
 
-    queryset = m.Notifications.availables.all()
+    queryset = m.Notification.availables.all()
     serializer_class = s.NotificationSerializer
 
     def destroy(self, request, pk=None):
@@ -212,8 +212,9 @@ class NotificationsViewSet(viewsets.ModelViewSet):
     @action(detail=True, url_path="send")
     def send(self, request, pk=None):
         instance = self.get_object()
-        if instance.status != m.Notifications.STATUS_SENT:
-            instance.status = m.Notifications.STATUS_SENT
+        if not instance.is_sent:
+            instance.is_sent = True
+            instance.sent_on = datetime.now()
             instance.save()
             send_notifications.apply_async(
                 args=[{
@@ -228,7 +229,7 @@ class NotificationsViewSet(viewsets.ModelViewSet):
     @action(detail=True, url_path='read')
     def read(self, request, pk=None):
         instance = self.get_object()
-        if instance.status != m.Notifications.STATUS_SENT:
+        if not instance.is_sent:
             return Response(
                 {
                     'msg': 'This notification is not delivered yet'
@@ -244,14 +245,14 @@ class NotificationsViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        obj, created = m.NotificationsAudiences.objects.get_or_create(
+        obj, created = m.NotificationAudiences.objects.get_or_create(
             notification=instance, audience=request.user
         )
         obj.is_read = True
         obj.recent_read_on = datetime.now()
         obj.save()
         return Response(
-            s.NotificationsAppSerializer(
+            s.NotificationAppSerializer(
                 obj.notification,
                 context={'audience': request.user},
             ).data,
@@ -261,11 +262,11 @@ class NotificationsViewSet(viewsets.ModelViewSet):
     @action(detail=False, url_path='me/all')
     def my_notifications(self, request):
         page = self.paginate_queryset(
-            m.Notifications.sents.filter(
+            m.Notification.sents.filter(
                 audiences=request.user,
             ).order_by('notificationsaudiences__is_read', '-updated')
         )
-        serializer = s.NotificationsAppSerializer(
+        serializer = s.NotificationAppSerializer(
             page,
             context={'audience': request.user},
             many=True
@@ -276,11 +277,11 @@ class NotificationsViewSet(viewsets.ModelViewSet):
     def my_unread_notifications(self, request):
         query_filter = Q(audiences=request.user) & ~Q(notificationsaudiences__is_read=True)
         page = self.paginate_queryset(
-            m.Notifications.sents.filter(
+            m.Notification.sents.filter(
                 query_filter
             ).order_by('-updated')
         )
-        serializer = s.NotificationsAppSerializer(
+        serializer = s.NotificationAppSerializer(
             page,
             context={'audience': request.user},
             many=True
@@ -291,11 +292,11 @@ class NotificationsViewSet(viewsets.ModelViewSet):
     def my_read_notifications(self, request):
         query_filter = Q(audiences=request.user) & Q(notificationsaudiences__is_read=True)
         page = self.paginate_queryset(
-            m.Notifications.sents.filter(
+            m.Notification.sents.filter(
                 query_filter
             ).order_by('-updated')
         )
-        serializer = s.NotificationsAppSerializer(
+        serializer = s.NotificationAppSerializer(
             page,
             context={'audience': request.user},
             many=True

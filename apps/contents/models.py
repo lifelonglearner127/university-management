@@ -76,14 +76,7 @@ class NewsAudiences(models.Model):
         return f'{self.news} - ({self.audience})'
 
 
-class Notifications(TimeStampedModel):
-
-    STATUS_SENT = 'S'
-    STATUS_PENDING = 'P'
-    STATUS = (
-        (STATUS_SENT, '已发送'),
-        (STATUS_PENDING, '未发送'),
-    )
+class Notification(TimeStampedModel):
 
     title = models.CharField(
         max_length=100
@@ -97,10 +90,13 @@ class Notifications(TimeStampedModel):
         related_name='as_notifications_author'
     )
 
-    status = models.CharField(
-        max_length=1,
-        choices=STATUS,
-        default=STATUS_PENDING
+    is_sent = models.BooleanField(
+        default=False
+    )
+
+    sent_on = models.DateTimeField(
+        null=True,
+        blank=True
     )
 
     is_deleted = models.BooleanField(
@@ -108,23 +104,24 @@ class Notifications(TimeStampedModel):
     )
 
     audiences = models.ManyToManyField(
-        User
+        User,
+        blank=True
     )
 
     objects = models.Manager()
-    sents = managers.SentNotificationsManager()
-    pendings = managers.PendingNotificationsManager()
-    availables = managers.AvailableNotificationsManager()
-    deleteds = managers.DeletedNotificationsManager()
+    sents = managers.SentNotificationManager()
+    pendings = managers.PendingNotificationManager()
+    availables = managers.AvailableNotificationManager()
+    deleteds = managers.DeletedNotificationManager()
 
     def __str__(self):
         return f'{self.id} - {self.title}'
 
 
-class NotificationsAudiences(models.Model):
+class NotificationAudiences(models.Model):
 
     notification = models.ForeignKey(
-        Notifications,
+        Notification,
         on_delete=models.CASCADE
     )
 

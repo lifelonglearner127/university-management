@@ -35,14 +35,14 @@ def publish_news(context):
 
 @app.task
 def send_notifications(context):
-    notification = get_object_or_404(m.Notifications, id=context['notification'])
+    notification = get_object_or_404(m.Notification, id=context['notification'])
 
     for audience in notification.audiences.all():
         if not audience.channel_name:
             continue
 
         query_filter = m.Q(audiences=audience) & ~m.Q(notificationsaudiences__is_read=True)
-        my_unread_count = m.Notifications.sents.filter(query_filter).count()
+        my_unread_count = m.Notification.sents.filter(query_filter).count()
 
         async_to_sync(channel_layer.send)(
             audience.channel_name,

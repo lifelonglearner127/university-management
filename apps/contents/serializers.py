@@ -145,7 +145,7 @@ class NewsAppSerializer(serializers.ModelSerializer):
             }
 
 
-class NotificationsAudiencesAdminSerializer(serializers.ModelSerializer):
+class NotificationAudiencesAdminSerializer(serializers.ModelSerializer):
     """NotificationsAudience Serializer for web manager
     """
     recent_read_on = serializers.DateTimeField(
@@ -154,7 +154,7 @@ class NotificationsAudiencesAdminSerializer(serializers.ModelSerializer):
     audience = UserNameSerializer(read_only=True)
 
     class Meta:
-        model = m.NotificationsAudiences
+        model = m.NotificationAudiences
         exclude = (
             'id', 'notification',
         )
@@ -173,7 +173,7 @@ class NotificationSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = m.Notifications
+        model = m.Notification
         fields = '__all__'
 
     def to_representation(self, instance):
@@ -186,7 +186,7 @@ class NotificationSerializer(serializers.ModelSerializer):
         return ret
 
 
-class NotificationsAdminSerializer(serializers.ModelSerializer):
+class NotificationAdminSerializer(serializers.ModelSerializer):
     """Notification Serializer for web manager
 
     This serializer is used for displaying the read status of the audiences
@@ -198,20 +198,18 @@ class NotificationsAdminSerializer(serializers.ModelSerializer):
     updated = serializers.DateTimeField(
         format='%Y-%m-%d %H:%M:%S', required=False
     )
-    audiences = NotificationsAudiencesAdminSerializer(
+    audiences = NotificationAudiencesAdminSerializer(
         source='notificationsaudiences_set', many=True, read_only=True
     )
-    status = TMSChoiceField(m.Notifications.STATUS)
 
     class Meta:
-        model = m.Notifications
+        model = m.Notification
         fields = '__all__'
 
 
-class NotificationsAppSerializer(serializers.ModelSerializer):
+class NotificationAppSerializer(serializers.ModelSerializer):
     """Notifications Serializer for teacher app
     """
-    status = TMSChoiceField(m.Notifications.STATUS)
     created = serializers.DateTimeField(
         format='%Y-%m-%d %H:%M:%S', required=False
     )
@@ -221,14 +219,14 @@ class NotificationsAppSerializer(serializers.ModelSerializer):
     meta = serializers.SerializerMethodField()
 
     class Meta:
-        model = m.Notifications
+        model = m.Notification
         fields = (
             'id', 'title', 'body', 'author', 'status', 'meta',
             'created', 'updated',
         )
 
     def get_meta(self, instance):
-        notification_audience = m.NotificationsAudiences.objects.filter(
+        notification_audience = m.NotificationAudiences.objects.filter(
             notification=instance,
             audience=self.context.get('audience', None)
         ).first()

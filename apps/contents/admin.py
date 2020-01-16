@@ -13,11 +13,11 @@ class NewsAudiencesAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(m.Notifications)
-class NotificationsAdmin(admin.ModelAdmin):
+@admin.register(m.Notification)
+class NotificationAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(m.NotificationsAudiences)
-class NotificationsAudiencesAdmin(admin.ModelAdmin):
+@admin.register(m.NotificationAudiences)
+class NotificationAudiencesAdmin(admin.ModelAdmin):
     pass

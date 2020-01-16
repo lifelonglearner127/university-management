@@ -35,7 +35,7 @@ class PendingNewsManager(models.Manager):
         )
 
 
-class AvailableNotificationsManager(models.Manager):
+class AvailableNotificationManager(models.Manager):
 
     def get_queryset(self):
         return super().get_queryset().filter(
@@ -43,7 +43,7 @@ class AvailableNotificationsManager(models.Manager):
         )
 
 
-class DeletedNotificationsManager(models.Manager):
+class DeletedNotificationManager(models.Manager):
 
     def get_queryset(self):
         return super().get_queryset().filter(
@@ -51,19 +51,19 @@ class DeletedNotificationsManager(models.Manager):
         )
 
 
-class SentNotificationsManager(models.Manager):
+class SentNotificationManager(models.Manager):
 
     def get_queryset(self):
         return super().get_queryset().filter(
             is_deleted=False,
-            status='S'
+            is_sent=True
         )
 
 
-class PendingNotificationsManager(models.Manager):
+class PendingNotificationManager(models.Manager):
 
     def get_queryset(self):
         return super().get_queryset().filter(
             is_deleted=False,
-            status='P'
+            is_sent=False
         )

@@ -5,7 +5,7 @@ from . import views as v
 
 router = DefaultRouter(trailing_slash=False)
 router.register(r'news', v.NewsViewSet)
-router.register(r'notifications', v.NotificationsViewSet)
+router.register(r'notifications', v.NotificationViewSet)
 
 urlpatterns = [
     path('', include(router.urls))
