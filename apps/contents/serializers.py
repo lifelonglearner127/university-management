@@ -9,38 +9,38 @@ from ..teachers.serializers import DepartmentSerializer
 batch_size = 100
 
 
-class NewsAudienceSerializer(serializers.ModelSerializer):
+class AdvertisementAudienceSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = m.NewsAudiences
+        model = m.AdvertisementAudiences
         exclude = (
-            'news',
+            'advertisement',
         )
 
 
-class NewsAudiencesReadReportSerializer(serializers.ModelSerializer):
+class AdvertisementAudiencesReadReportSerializer(serializers.ModelSerializer):
 
     audience = UserNameSerializer()
     department = DepartmentSerializer(source='audience.profile.department')
 
     class Meta:
-        model = m.NewsAudiences
+        model = m.AdvertisementAudiences
         fields = (
             'id', 'audience', 'department', 'recent_read_on', 'is_read'
         )
 
 
-class NewsSerializer(serializers.ModelSerializer):
+class AdvertisementSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = m.News
+        model = m.Advertisement
         fields = '__all__'
 
 
-class NewsCreateUpdateSerializer(serializers.ModelSerializer):
-    """News Serializer
+class AdvertisementCreateUpdateSerializer(serializers.ModelSerializer):
+    """Advertisement Serializer
 
-    This serializer is used for creating & updating news instance
+    This serializer is used for creating & updating advertisement instance
     """
     created = serializers.DateTimeField(
         format='%Y-%m-%d %H:%M:%S', required=False
@@ -50,21 +50,21 @@ class NewsCreateUpdateSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = m.News
+        model = m.Advertisement
         fields = '__all__'
 
     def create(self, validated_data):
-        news = m.News.objects.create(**validated_data)
+        advertisement = m.Advertisement.objects.create(**validated_data)
         audience_ids = self.context.pop('audiences', [])
         audiences = m.User.objects.filter(id__in=audience_ids)
-        objs = (m.NewsAudiences(news=news, audience=audience) for audience in audiences)
+        objs = (m.AdvertisementAudiences(advertisement=advertisement, audience=audience) for audience in audiences)
         while True:
             batch = list(islice(objs, batch_size))
             if not batch:
                 break
-            m.NewsAudiences.objects.bulk_create(batch, batch_size)
+            m.AdvertisementAudiences.objects.bulk_create(batch, batch_size)
 
-        return news
+        return advertisement
 
     def update(self, instance, validated_data):
         for key, value in validated_data.items():
@@ -72,43 +72,43 @@ class NewsCreateUpdateSerializer(serializers.ModelSerializer):
 
         old_audience_ids = set(instance.audiences.values_list('id', flat=True))
         new_audience_ids = set(self.context.pop('audiences', []))
-        m.NewsAudiences.objects.filter(
-            news=instance, audience__id__in=old_audience_ids.difference(new_audience_ids)
+        m.AdvertisementAudiences.objects.filter(
+            advertisement=instance, audience__id__in=old_audience_ids.difference(new_audience_ids)
         ).delete()
 
         new_audiences = m.User.objects.filter(id__in=new_audience_ids.difference(old_audience_ids))
-        objs = (m.NewsAudiences(news=instance, audience=audience) for audience in new_audiences)
+        objs = (m.AdvertisementAudiences(advertisement=instance, audience=audience) for audience in new_audiences)
         while True:
             batch = list(islice(objs, batch_size))
             if not batch:
                 break
-            m.NewsAudiences.objects.bulk_create(batch, batch_size)
+            m.AdvertisementAudiences.objects.bulk_create(batch, batch_size)
 
         instance.save()
         return instance
 
 
-class NewsListSerializer(serializers.ModelSerializer):
-    """News List Serializer without news body
+class AdvertisementListSerializer(serializers.ModelSerializer):
+    """Advertisement List Serializer without advertisement body
 
-    This serializer is used for listing news in web table
+    This serializer is used for listing advertisement in web table
     """
     author = UserNameSerializer(read_only=True)
 
     class Meta:
-        model = m.News
+        model = m.Advertisement
         fields = (
             'id', 'title', 'author', 'is_published', 'published_date',
         )
 
 
-class NewsDetailSerializer(serializers.ModelSerializer):
+class AdvertisementDetailSerializer(serializers.ModelSerializer):
 
     author = UserNameSerializer(read_only=True)
     read_report = serializers.SerializerMethodField()
 
     class Meta:
-        model = m.News
+        model = m.Advertisement
         fields = (
             'id', 'title', 'body', 'author', 'is_published', 'published_date', 'audiences',
             'read_report',
@@ -116,7 +116,7 @@ class NewsDetailSerializer(serializers.ModelSerializer):
 
     def get_read_report(self, instance):
         total_count = instance.audiences.count()
-        read_count = m.NewsAudiences.objects.filter(news=instance, is_read=True).count()
+        read_count = m.AdvertisementAudiences.objects.filter(advertisement=instance, is_read=True).count()
         return {
             'total_count': total_count,
             'read_count': read_count,
@@ -124,8 +124,8 @@ class NewsDetailSerializer(serializers.ModelSerializer):
         }
 
 
-class NewsAppSerializer(serializers.ModelSerializer):
-    """News serializer for teacher app
+class AdvertisementAppSerializer(serializers.ModelSerializer):
+    """Advertisement serializer for teacher app
     """
     author = UserNameSerializer()
     created = serializers.DateTimeField(
@@ -137,22 +137,22 @@ class NewsAppSerializer(serializers.ModelSerializer):
     meta = serializers.SerializerMethodField()
 
     class Meta:
-        model = m.News
+        model = m.Advertisement
         fields = (
             'id', 'title', 'author', 'is_published', 'is_deleted', 'meta',
             'created', 'updated'
         )
 
     def get_meta(self, instance):
-        news_audience = m.NewsAudiences.objects.filter(
-            news=instance,
+        advertisement_audience = m.AdvertisementAudiences.objects.filter(
+            advertisement=instance,
             audience=self.context.get('audience', None)
         ).first()
-        if news_audience:
+        if advertisement_audience:
             return {
                 'recent_read_on':
-                news_audience.recent_read_on.strftime('%Y-%m-%d %H:%M:%S'),
-                'is_read': news_audience.is_read
+                advertisement_audience.recent_read_on.strftime('%Y-%m-%d %H:%M:%S'),
+                'is_read': advertisement_audience.is_read
             }
         else:
             return {
@@ -181,7 +181,7 @@ class NotificationAudiencesSerializer(serializers.ModelSerializer):
     class Meta:
         model = m.NotificationAudiences
         exclude = (
-            'news',
+            'advertisement',
         )
 
 

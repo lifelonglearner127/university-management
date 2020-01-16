@@ -11,14 +11,14 @@ channel_layer = get_channel_layer()
 
 
 @app.task
-def publish_news(context):
-    news = get_object_or_404(m.News, id=context['news'])
-    for audience in news.audiences.all():
+def publish_advertisement(context):
+    advertisement = get_object_or_404(m.Advertisement, id=context['advertisement'])
+    for audience in advertisement.audiences.all():
         if not audience.channel_name:
             continue
 
-        query_filter = m.Q(audiences=audience) & ~m.Q(newsaudiences__is_read=True)
-        my_unread_count = m.News.publisheds.filter(query_filter).count()
+        query_filter = m.Q(audiences=audience) & ~m.Q(advertisementaudiences__is_read=True)
+        my_unread_count = m.Advertisement.publisheds.filter(query_filter).count()
 
         async_to_sync(channel_layer.send)(
             audience.channel_name,
@@ -26,7 +26,7 @@ def publish_news(context):
                 'type': 'notify',
                 'data': json.dumps({
                     'code': 0,
-                    'type': 'news',
+                    'type': 'advertisement',
                     'unreadCount': my_unread_count
                 })
             }

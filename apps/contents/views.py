@@ -7,13 +7,13 @@ from rest_framework.response import Response
 
 from . import models as m
 from . import serializers as s
-from .tasks import publish_news, send_notifications
+from .tasks import publish_advertisement, send_notifications
 
 
-class NewsViewSet(viewsets.ModelViewSet):
+class AdvertisementViewSet(viewsets.ModelViewSet):
 
-    queryset = m.News.availables.all()
-    serializer_class = s.NewsSerializer
+    queryset = m.Advertisement.availables.all()
+    serializer_class = s.AdvertisementSerializer
 
     def get_queryset(self):
         queryset = self.queryset
@@ -29,12 +29,12 @@ class NewsViewSet(viewsets.ModelViewSet):
 
     def list(self, request):
         page = self.paginate_queryset(self.get_queryset())
-        serializer = s.NewsListSerializer(page, many=True)
+        serializer = s.AdvertisementListSerializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
     def create(self, request):
         audiences = request.data.pop('audiences', [])
-        serializer = s.NewsCreateUpdateSerializer(
+        serializer = s.AdvertisementCreateUpdateSerializer(
             data=request.data,
             context={
                 'audiences': audiences
@@ -50,7 +50,7 @@ class NewsViewSet(viewsets.ModelViewSet):
     def update(self, request, pk=None):
         instance = self.get_object()
         audiences = request.data.pop('audiences', [])
-        serializer = s.NewsCreateUpdateSerializer(
+        serializer = s.AdvertisementCreateUpdateSerializer(
             instance,
             data=request.data,
             context={
@@ -69,7 +69,7 @@ class NewsViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
 
         return Response(
-            s.NewsDetailSerializer(instance).data,
+            s.AdvertisementDetailSerializer(instance).data,
             status=status.HTTP_200_OK
         )
 
@@ -84,7 +84,7 @@ class NewsViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'], url_path="bulk-delete")
     def bulk_delete(slef, request):
-        m.News.objects.filter(id__in=request.data.get('ids', [])).delete()
+        m.Advertisement.objects.filter(id__in=request.data.get('ids', [])).delete()
         return Response(
             {
                 'msg': 'Delete successfully'
@@ -94,9 +94,9 @@ class NewsViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, url_path='audiences')
     def get_audiences_with_pagination(self, request, pk=None):
-        instance = get_object_or_404(m.News, id=pk)
+        instance = get_object_or_404(m.Advertisement, id=pk)
 
-        audiences = instance.newsaudiences_set.all()
+        audiences = instance.advertisementaudiences_set.all()
 
         query_str = request.query_params.get('q', None)
         if query_str:
@@ -112,7 +112,7 @@ class NewsViewSet(viewsets.ModelViewSet):
             audiences = audiences.order_by(sort_str)
 
         page = self.paginate_queryset(audiences)
-        serializer = s.NewsAudiencesReadReportSerializer(page, many=True)
+        serializer = s.AdvertisementAudiencesReadReportSerializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
     @action(detail=True, url_path='publish')
@@ -122,9 +122,9 @@ class NewsViewSet(viewsets.ModelViewSet):
             instance.is_published = True
             instance.published_date = date.today()
             instance.save()
-            publish_news.apply_async(
+            publish_advertisement.apply_async(
                 args=[{
-                    'news': instance.id
+                    'advertisement': instance.id
                 }]
             )
         return Response(
@@ -139,7 +139,7 @@ class NewsViewSet(viewsets.ModelViewSet):
         if not instance.is_published:
             return Response(
                 {
-                    'msg': 'This news is not published yet'
+                    'msg': 'This advertisement is not published yet'
                 },
                 status=status.HTTP_403_FORBIDDEN
             )
@@ -147,13 +147,13 @@ class NewsViewSet(viewsets.ModelViewSet):
         if request.user not in instance.audiences.all():
             return Response(
                 {
-                    'msg': 'You are not permitted to read this news'
+                    'msg': 'You are not permitted to read this advertisement'
                 },
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        obj, created = m.NewsAudiences.objects.get_or_create(
-            news=instance, audience=request.user
+        obj, created = m.AdvertisementAudiences.objects.get_or_create(
+            advertisement=instance, audience=request.user
         )
         if not obj.is_read:
             obj.is_read = True
@@ -161,21 +161,21 @@ class NewsViewSet(viewsets.ModelViewSet):
         obj.recent_read_on = datetime.now()
         obj.save()
         return Response(
-            s.NewsAppSerializer(
-                obj.news,
+            s.AdvertisementAppSerializer(
+                obj.advertisement,
                 context={'audience': request.user},
             ).data,
             status=status.HTTP_200_OK
         )
 
     @action(detail=False, url_path='me/all')
-    def my_news(self, request):
+    def my_advertisement(self, request):
         page = self.paginate_queryset(
-            m.News.publisheds.filter(
+            m.Advertisement.publisheds.filter(
                 audiences=request.user,
-            ).order_by('newsaudiences__is_read', '-updated')
+            ).order_by('advertisementaudiences__is_read', '-updated')
         )
-        serializer = s.NewsAppSerializer(
+        serializer = s.AdvertisementAppSerializer(
             page,
             context={'audience': request.user},
             many=True,
@@ -183,14 +183,14 @@ class NewsViewSet(viewsets.ModelViewSet):
         return self.get_paginated_response(serializer.data)
 
     @action(detail=False, url_path='me/unreads')
-    def my_unread_news(self, request):
-        query_filter = Q(audiences=request.user) & ~Q(newsaudiences__is_read=True)
+    def my_unread_advertisement(self, request):
+        query_filter = Q(audiences=request.user) & ~Q(advertisementaudiences__is_read=True)
         page = self.paginate_queryset(
-            m.News.publisheds.filter(
+            m.Advertisement.publisheds.filter(
                 query_filter
             ).order_by('-updated')
         )
-        serializer = s.NewsAppSerializer(
+        serializer = s.AdvertisementAppSerializer(
             page,
             context={'audience': request.user},
             many=True
@@ -198,14 +198,14 @@ class NewsViewSet(viewsets.ModelViewSet):
         return self.get_paginated_response(serializer.data)
 
     @action(detail=False, url_path='me/reads')
-    def my_read_news(self, request):
-        query_filter = Q(audiences=request.user) & Q(newsaudiences__is_read=True)
+    def my_read_advertisement(self, request):
+        query_filter = Q(audiences=request.user) & Q(advertisementaudiences__is_read=True)
         page = self.paginate_queryset(
-            m.News.publisheds.filter(
+            m.Advertisement.publisheds.filter(
                 query_filter
-            ).order_by('-newsaudiences__recent_read_on')
+            ).order_by('-advertisementaudiences__recent_read_on')
         )
-        serializer = s.NewsAppSerializer(
+        serializer = s.AdvertisementAppSerializer(
             page,
             context={'audience': request.user},
             many=True
@@ -213,9 +213,9 @@ class NewsViewSet(viewsets.ModelViewSet):
         return self.get_paginated_response(serializer.data)
 
     @action(detail=False, url_path="me/unread-count")
-    def my_unread_news_count(self, request):
-        query_filter = Q(audiences=request.user) & ~Q(newsaudiences__is_read=True)
-        my_unread_count = m.News.publisheds.filter(query_filter).count()
+    def my_unread_advertisement_count(self, request):
+        query_filter = Q(audiences=request.user) & ~Q(advertisementaudiences__is_read=True)
+        my_unread_count = m.Advertisement.publisheds.filter(query_filter).count()
         return Response(
             {
                 'count': my_unread_count
@@ -333,7 +333,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
         if request.user not in instance.audiences.all():
             return Response(
                 {
-                    'msg': 'You are not permitted to read this news'
+                    'msg': 'You are not permitted to read this advertisement'
                 },
                 status=status.HTTP_403_FORBIDDEN
             )

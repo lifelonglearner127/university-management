@@ -5,7 +5,7 @@ from ..accounts.models import User
 from ..core.models import TimeStampedModel
 
 
-class News(TimeStampedModel):
+class Advertisement(TimeStampedModel):
 
     title = models.CharField(
         max_length=100
@@ -19,7 +19,7 @@ class News(TimeStampedModel):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='as_news_author'
+        related_name='as_advertisement_author'
     )
 
     is_published = models.BooleanField(
@@ -37,23 +37,23 @@ class News(TimeStampedModel):
 
     audiences = models.ManyToManyField(
         User,
-        through='NewsAudiences'
+        through='AdvertisementAudiences'
     )
 
     objects = models.Manager()
-    availables = managers.AvailableNewsManager()
-    deleteds = managers.DeletedNewsManager()
-    publisheds = managers.PublishedNewsManager()
-    pendings = managers.PendingNewsManager()
+    availables = managers.AvailableAdvertisementManager()
+    deleteds = managers.DeletedAdvertisementManager()
+    publisheds = managers.PublishedAdvertisementManager()
+    pendings = managers.PendingAdvertisementManager()
 
     def __str__(self):
         return f'{self.id} - {self.title}'
 
 
-class NewsAudiences(models.Model):
+class AdvertisementAudiences(models.Model):
 
-    news = models.ForeignKey(
-        News,
+    advertisement = models.ForeignKey(
+        Advertisement,
         on_delete=models.CASCADE
     )
 
@@ -76,7 +76,7 @@ class NewsAudiences(models.Model):
     )
 
     def __str__(self):
-        return f'{self.news} - ({self.audience})'
+        return f'{self.advertisement} - ({self.audience})'
 
 
 class Notification(TimeStampedModel):

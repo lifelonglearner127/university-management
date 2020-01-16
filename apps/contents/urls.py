@@ -4,7 +4,7 @@ from . import views as v
 
 
 router = DefaultRouter(trailing_slash=False)
-router.register(r'news', v.NewsViewSet)
+router.register(r'advertisements', v.AdvertisementViewSet)
 router.register(r'notifications', v.NotificationViewSet)
 
 urlpatterns = [

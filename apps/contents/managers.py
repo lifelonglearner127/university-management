@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class AvailableNewsManager(models.Manager):
+class AvailableAdvertisementManager(models.Manager):
 
     def get_queryset(self):
         return super().get_queryset().filter(
@@ -9,7 +9,7 @@ class AvailableNewsManager(models.Manager):
         )
 
 
-class DeletedNewsManager(models.Manager):
+class DeletedAdvertisementManager(models.Manager):
 
     def get_queryset(self):
         return super().get_queryset().filter(
@@ -17,7 +17,7 @@ class DeletedNewsManager(models.Manager):
         )
 
 
-class PublishedNewsManager(models.Manager):
+class PublishedAdvertisementManager(models.Manager):
 
     def get_queryset(self):
         return super().get_queryset().filter(
@@ -26,7 +26,7 @@ class PublishedNewsManager(models.Manager):
         )
 
 
-class PendingNewsManager(models.Manager):
+class PendingAdvertisementManager(models.Manager):
 
     def get_queryset(self):
         return super().get_queryset().filter(

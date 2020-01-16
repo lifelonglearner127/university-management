@@ -3,13 +3,13 @@ from django.contrib import admin
 from . import models as m
 
 
-@admin.register(m.News)
-class NewsAdmin(admin.ModelAdmin):
+@admin.register(m.Advertisement)
+class AdvertisementAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(m.NewsAudiences)
-class NewsAudiencesAdmin(admin.ModelAdmin):
+@admin.register(m.AdvertisementAudiences)
+class AdvertisementAudiencesAdmin(admin.ModelAdmin):
     pass
 
 
