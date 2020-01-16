@@ -8,5 +8,6 @@ router.register(r'advertisements', v.AdvertisementViewSet)
 router.register(r'notifications', v.NotificationViewSet)
 
 urlpatterns = [
-    path('', include(router.urls))
+    path('', include(router.urls)),
+    path('apps/advertisements/<int:pk>/', v.AdvertisementAppDetailView.as_view(), name='app-advertisement-view'),
 ]

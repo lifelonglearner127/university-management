@@ -1,6 +1,7 @@
 from datetime import datetime, date
 from django.db.models import Q
-from django.shortcuts import get_object_or_404
+from django.views.generic import DetailView
+from django.shortcuts import get_object_or_404, render
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -395,3 +396,18 @@ class NotificationViewSet(viewsets.ModelViewSet):
             many=True
         )
         return self.get_paginated_response(serializer.data)
+
+
+class AdvertisementAppDetailView(DetailView):
+
+    template_name = "contents/advertisements.html"
+    queryset = m.Advertisement.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        instance = super().get_object()
+        return render(request, self.template_name, {
+            'title': instance.title,
+            'published_date': instance.published_date,
+            'author': instance.author,
+            'body': instance.body,
+        })
