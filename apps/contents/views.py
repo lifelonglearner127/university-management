@@ -1,5 +1,6 @@
 from datetime import datetime, date
-from django.db.models import Q
+from django.db.models import Q, OuterRef, Subquery
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -31,6 +32,14 @@ class NewsViewSet(viewsets.ModelViewSet):
         serializer = s.NewsListSerializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
+    def retrieve(self, request, pk=None):
+        instance = self.get_object()
+
+        return Response(
+            s.NewsDetailSerializer(instance).data,
+            status=status.HTTP_200_OK
+        )
+
     def destroy(self, request, pk=None):
         instance = self.get_object()
         instance.is_deleted = True
@@ -49,6 +58,33 @@ class NewsViewSet(viewsets.ModelViewSet):
             },
             status=status.HTTP_200_OK
         )
+
+    @action(detail=True, url_path='audiences')
+    def get_audiences_with_pagination(self, request, pk=None):
+        instance = get_object_or_404(m.News, id=pk)
+
+        audiences = instance.audiences.annotate(
+            recent_read_on=Subquery(m.NewsAudiences.objects.filter(
+                news=instance.id, audience=OuterRef('pk')
+            ).values('recent_read_on'))
+        )
+
+        query_str = request.query_params.get('q', None)
+        if query_str:
+            audiences = audiences.filter(name__icontains=query_str)
+
+        department_query = request.query_params.get('departments', None)
+        if department_query:
+            departments = department_query.split(',')
+            audiences = audiences.filter(profile__department__id__in=departments)
+
+        sort_str = request.query_params.get('sort', None)
+        if sort_str:
+            audiences = audiences.order_by(sort_str)
+
+        page = self.paginate_queryset(audiences)
+        serializer = s.NewsReportSerializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
     @action(detail=True, url_path='publish')
     def publish(self, request, pk=None):
@@ -90,7 +126,9 @@ class NewsViewSet(viewsets.ModelViewSet):
         obj, created = m.NewsAudiences.objects.get_or_create(
             news=instance, audience=request.user
         )
-        obj.is_read = True
+        if not obj.is_read:
+            obj.is_read = True
+
         obj.recent_read_on = datetime.now()
         obj.save()
         return Response(

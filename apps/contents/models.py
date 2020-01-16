@@ -37,6 +37,7 @@ class News(TimeStampedModel):
 
     audiences = models.ManyToManyField(
         User,
+        related_name='my_news',
         blank=True
     )
 

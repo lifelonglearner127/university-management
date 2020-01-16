@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from . import models as m
 from ..accounts.serializers import UserNameSerializer
+from ..teachers.serializers import DepartmentSerializer
 from ..core.serializers import TMSChoiceField
 
 
@@ -34,6 +35,36 @@ class NewsListSerializer(serializers.ModelSerializer):
         )
 
 
+class NewsReportSerializer(serializers.Serializer):
+
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    recent_read_on = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
+    department = DepartmentSerializer(source='profile.department')
+
+
+class NewsDetailSerializer(serializers.ModelSerializer):
+
+    author = UserNameSerializer(read_only=True)
+    read_report = serializers.SerializerMethodField()
+
+    class Meta:
+        model = m.News
+        fields = (
+            'id', 'title', 'body', 'author', 'is_published', 'published_date', 'audiences',
+            'read_report',
+        )
+
+    def get_read_report(self, instance):
+        total_count = instance.audiences.count()
+        read_count = m.NewsAudiences.objects.filter(news=instance, is_read=True).count()
+        return {
+            'total_count': total_count,
+            'read_count': read_count,
+            'unread_count': total_count - read_count
+        }
+
+
 class NewsSerializer(serializers.ModelSerializer):
     """News Serializer
 
@@ -53,10 +84,6 @@ class NewsSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret['author'] = UserNameSerializer(instance.author).data
-        ret['audiences'] = UserNameSerializer(
-            instance.audiences, many=True
-        ).data
-
         return ret
 
 
