@@ -37,8 +37,7 @@ class News(TimeStampedModel):
 
     audiences = models.ManyToManyField(
         User,
-        related_name='my_news',
-        blank=True
+        through='NewsAudiences'
     )
 
     objects = models.Manager()
@@ -61,6 +60,10 @@ class NewsAudiences(models.Model):
     audience = models.ForeignKey(
         User,
         on_delete=models.CASCADE
+    )
+
+    date_joined = models.DateTimeField(
+        auto_now_add=True
     )
 
     is_read = models.BooleanField(
@@ -105,7 +108,7 @@ class Notification(TimeStampedModel):
 
     audiences = models.ManyToManyField(
         User,
-        blank=True
+        through='NotificationAudiences'
     )
 
     objects = models.Manager()
@@ -128,6 +131,10 @@ class NotificationAudiences(models.Model):
     audience = models.ForeignKey(
         User,
         on_delete=models.CASCADE
+    )
+
+    date_joined = models.DateTimeField(
+        auto_now_add=True
     )
 
     is_read = models.BooleanField(

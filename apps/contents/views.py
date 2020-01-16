@@ -1,5 +1,5 @@
 from datetime import datetime, date
-from django.db.models import Q, OuterRef, Subquery
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -32,6 +32,39 @@ class NewsViewSet(viewsets.ModelViewSet):
         serializer = s.NewsListSerializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
+    def create(self, request):
+        audiences = request.data.pop('audiences', [])
+        serializer = s.NewsCreateUpdateSerializer(
+            data=request.data,
+            context={
+                'audiences': audiences
+            }
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
+
+    def update(self, request, pk=None):
+        instance = self.get_object()
+        audiences = request.data.pop('audiences', [])
+        serializer = s.NewsCreateUpdateSerializer(
+            instance,
+            data=request.data,
+            context={
+                'audiences': audiences
+            },
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
+
     def retrieve(self, request, pk=None):
         instance = self.get_object()
 
@@ -63,27 +96,23 @@ class NewsViewSet(viewsets.ModelViewSet):
     def get_audiences_with_pagination(self, request, pk=None):
         instance = get_object_or_404(m.News, id=pk)
 
-        audiences = instance.audiences.annotate(
-            recent_read_on=Subquery(m.NewsAudiences.objects.filter(
-                news=instance.id, audience=OuterRef('pk')
-            ).values('recent_read_on'))
-        )
+        audiences = instance.newsaudiences_set.all()
 
         query_str = request.query_params.get('q', None)
         if query_str:
-            audiences = audiences.filter(name__icontains=query_str)
+            audiences = audiences.filter(audience__name__icontains=query_str)
 
         department_query = request.query_params.get('departments', None)
         if department_query:
             departments = department_query.split(',')
-            audiences = audiences.filter(profile__department__id__in=departments)
+            audiences = audiences.filter(audience__profile__department__id__in=departments)
 
         sort_str = request.query_params.get('sort', None)
         if sort_str:
             audiences = audiences.order_by(sort_str)
 
         page = self.paginate_queryset(audiences)
-        serializer = s.NewsReportSerializer(page, many=True)
+        serializer = s.NewsAudiencesReadReportSerializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
     @action(detail=True, url_path='publish')
@@ -200,6 +229,47 @@ class NotificationViewSet(viewsets.ModelViewSet):
     queryset = m.Notification.availables.all()
     serializer_class = s.NotificationSerializer
 
+    def create(self, request):
+        audiences = request.data.pop('audiences', [])
+        serializer = s.NotificationCreateUpdateSerializer(
+            data=request.data,
+            context={
+                'audiences': audiences
+            }
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
+
+    def update(self, request, pk=None):
+        instance = self.get_object()
+        audiences = request.data.pop('audiences', [])
+        serializer = s.NotificationCreateUpdateSerializer(
+            instance,
+            data=request.data,
+            context={
+                'audiences': audiences
+            },
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
+
+    def retrieve(self, request, pk=None):
+        instance = self.get_object()
+        serializer = s.NotificationDetailSerializer(instance)
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
+
     def destroy(self, request, pk=None):
         instance = self.get_object()
         instance.is_deleted = True
@@ -208,6 +278,29 @@ class NotificationViewSet(viewsets.ModelViewSet):
             self.serializer_class(instance).data,
             status=status.HTTP_204_NO_CONTENT
         )
+
+    @action(detail=True, url_path='audiences')
+    def get_audiences_with_pagination(self, request, pk=None):
+        instance = get_object_or_404(m.Notification, id=pk)
+
+        audiences = instance.notificationaudiences_set.all()
+
+        query_str = request.query_params.get('q', None)
+        if query_str:
+            audiences = audiences.filter(audience__name__icontains=query_str)
+
+        department_query = request.query_params.get('departments', None)
+        if department_query:
+            departments = department_query.split(',')
+            audiences = audiences.filter(audience__profile__department__id__in=departments)
+
+        sort_str = request.query_params.get('sort', None)
+        if sort_str:
+            audiences = audiences.order_by(sort_str)
+
+        page = self.paginate_queryset(audiences)
+        serializer = s.NotificationAudiencesReadReportSerializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
     @action(detail=True, url_path="send")
     def send(self, request, pk=None):
