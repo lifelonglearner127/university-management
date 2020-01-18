@@ -76,5 +76,15 @@ class UserAdmin(BaseUserAdmin):
     filter_horizontal = ()
 
 
+@admin.register(m.UserPermission)
+class UserPermissionAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(m.Permission)
+class PermissionAdmin(admin.ModelAdmin):
+    pass
+
+
 admin.site.register(m.User, UserAdmin)
 admin.site.unregister(Group)

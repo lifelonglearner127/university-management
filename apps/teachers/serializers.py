@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from . import models as m
+from ..accounts.models import UserPermission
 from ..accounts.serializers import UserNameSerializer, ShortUserSerializer
 from ..core.serializers import Base64ImageField, TMSChoiceField
 
@@ -111,10 +112,16 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
         if position_data and position_data.get('id', None):
             position = get_object_or_404(m.Position, id=position_data.get('id'))
 
+        permission = None
+        permission_data = self.context.pop('permission', None)
+        if permission_data and permission_data.get('id', None):
+            permission = get_object_or_404(UserPermission, id=permission_data.get('id'))
+
         user_password = user_data.pop('password', None)
         user = m.User(**user_data)
         if user_password:
             user.set_password(user_password)
+        user.permission = permission
         user.save()
 
         return m.TeacherProfile.objects.create(
@@ -133,12 +140,6 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
         instance.user.username = user_data["username"]
         instance.user.mobile = user_data["mobile"]
 
-        user_password = user_data.pop('password', None)
-        if user_password:
-            instance.user.set_password(user_password)
-
-        instance.user.save()
-
         department = None
         department_data = self.context.pop('department', None)
         if department_data and department_data.get('id', None):
@@ -148,6 +149,18 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
         position_data = self.context.pop('position', None)
         if position_data and position_data.get('id', None):
             position = get_object_or_404(m.Position, id=position_data.get('id'))
+
+        permission = None
+        permission_data = self.context.pop('permission', None)
+        if permission_data and permission_data.get('id', None):
+            permission = get_object_or_404(UserPermission, id=permission_data.get('id'))
+
+        user_password = user_data.pop('password', None)
+        if user_password:
+            instance.user.set_password(user_password)
+
+        instance.user.permission = permission
+        instance.user.save()
 
         for (key, value) in validated_data.items():
             setattr(instance, key, value)

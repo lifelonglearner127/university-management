@@ -158,7 +158,8 @@ class TeacherViewSet(XLSXFileMixin, viewsets.ModelViewSet):
         context = {
             'user': user_data,
             'department': request.data.pop('department', None),
-            'position': request.data.pop('position', None)
+            'position': request.data.pop('position', None),
+            'permission': request.data.pop('permission', None)
         }
 
         if user_data:
@@ -192,7 +193,8 @@ class TeacherViewSet(XLSXFileMixin, viewsets.ModelViewSet):
         context = {
             'user': user_data,
             'department': request.data.pop('department', None),
-            'position': request.data.pop('position', None)
+            'position': request.data.pop('position', None),
+            'permission': request.data.pop('permission', None)
         }
 
         query_filter = Q(username=user_data["username"]) | Q(mobile=user_data["mobile"])

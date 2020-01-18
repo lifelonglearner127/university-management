@@ -2,6 +2,7 @@ import jwt
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth import authenticate
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 
 from . import models as m
@@ -25,14 +26,101 @@ def jwt_encode_handler(payload):
     ).decode('utf-8')
 
 
+class UserPermissionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = m.UserPermission
+        fields = '__all__'
+
+
+class UserPermissionDetailSerializer(serializers.ModelSerializer):
+
+    tree_data = serializers.SerializerMethodField()
+
+    class Meta:
+        model = m.UserPermission
+        fields = (
+            'id', 'name', 'description', 'tree_data'
+        )
+
+    def get_tree_data(self, instance):
+        ret = []
+        for permission in instance.permissions.all():
+            action = permission.action
+            for value in ret:
+                if value['page'] == permission.page:
+                    value['value'].append(action)
+                    break
+            else:
+                ret.append({
+                    'page': permission.page,
+                    'value': [action],
+                })
+
+        return ret
+
+
+class UserPermissionListSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = m.UserPermission
+        exclude = (
+            'permissions',
+        )
+
+
+class UserPermissionNameSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = m.UserPermission
+        fields = (
+            'id', 'name'
+        )
+
+
 class AuthSerializer(serializers.Serializer):
     """
     Serializer for auth data of user
     """
-    id = serializers.IntegerField()
-    username = serializers.CharField()
-    name = serializers.CharField()
-    avatar = serializers.CharField()
+    avatar = serializers.SerializerMethodField()
+    permissions = serializers.SerializerMethodField()
+
+    class Meta:
+        model = m.User
+        fields = (
+            'id', 'username', 'name', 'avatar', 'permissions'
+        )
+
+    def get_avatar(self, instance):
+        try:
+            profile = instance.profile
+            request = self.context.get('request', None)
+            avatar = profile.images.first()
+            if avatar and request:
+                avatar = request.build_absolute_uri(avatar.image.url)
+            else:
+                avatar = ''
+        except ObjectDoesNotExist:
+            avatar = ''
+
+        return avatar
+
+    def get_permissions(self, instance):
+        ret = []
+        if instance.permission is not None:
+            for permission in instance.permission.permissions.all():
+                action = permission.action
+                for value in ret:
+                    if value['page'] == permission.page:
+                        value['value'].append(action)
+                        break
+                else:
+                    ret.append({
+                        'page': permission.page,
+                        'value': [action],
+                    })
+
+        return ret
 
 
 class ObtainJWTSerializer(serializers.Serializer):
@@ -151,7 +239,7 @@ class ShortUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = m.User
         fields = (
-            'id', 'username', 'name', 'mobile',
+            'id', 'username', 'name', 'mobile', 'permission'
         )
 
 

@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 
 from ..core.validators import validate_mobile, validate_username
+from ..core.models import TimeStampedModel
 
 
 class UserManager(BaseUserManager):
@@ -86,6 +87,12 @@ class User(AbstractBaseUser):
         default=True
     )
 
+    permission = models.ForeignKey(
+        'UserPermission',
+        on_delete=models.SET_NULL,
+        null=True
+    )
+
     is_super_user = models.BooleanField(
         default=False
     )
@@ -113,3 +120,40 @@ class User(AbstractBaseUser):
             return True
 
         return False
+
+
+class UserPermission(TimeStampedModel):
+
+    name = models.CharField(
+        max_length=100
+    )
+
+    permissions = models.ManyToManyField(
+        'Permission',
+        blank=True
+    )
+
+    description = models.TextField(
+        null=True,
+        blank=True
+    )
+
+    def __str__(self):
+        return self.name
+
+    def has_permission(self, page, action):
+        return self.permissions.filter(page=page, action=action).exists()
+
+
+class Permission(models.Model):
+
+    page = models.CharField(
+        max_length=100
+    )
+
+    action = models.CharField(
+        max_length=100
+    )
+
+    def __str__(self):
+        return '{} permission on {} page'.format(self.action, self.page)
