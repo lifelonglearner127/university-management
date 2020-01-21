@@ -237,6 +237,28 @@ class TeacherViewSet(XLSXFileMixin, viewsets.ModelViewSet):
         serializer = s.ShortTeacherProfileSerializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
+    @action(detail=False, methods=['post'], url_path='id-restriction/short')
+    def get_short_profiles_with_id_restriction(self, request):
+        queryset = self.queryset
+        query_str = request.data.get('q', None)
+        if query_str:
+            queryset = queryset.filter(Q(user__name__icontains=query_str) | Q(work_no=query_str))
+
+        departments = request.data.get('departments', [])
+        if departments:
+            queryset = queryset.filter(department__id__in=departments)
+
+        ids = request.data.get('ids', [])
+        queryset = queryset.filter(~Q(id__in=ids))
+
+        sort_str = request.data.get('sort', None)
+        if sort_str:
+            queryset = queryset.order_by(sort_str)
+
+        page = self.paginate_queryset(queryset)
+        serializer = s.ShortTeacherProfileSerializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
+
     @action(detail=False, methods=['post'], url_path="bulk-delete")
     def bulk_delete(self, request):
         user_ids = m.TeacherProfile.objects.filter(

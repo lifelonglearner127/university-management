@@ -21,3 +21,8 @@ class AttendanceTimeAdmin(admin.ModelAdmin):
 @admin.register(m.AttendanceRule)
 class AttendanceRuleAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(m.AttendanceEvent)
+class AttendanceEventAdmin(admin.ModelAdmin):
+    pass

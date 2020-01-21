@@ -137,9 +137,6 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
         if not user_data:
             raise serializers.ValidationError("user data not provided")
 
-        instance.user.username = user_data["username"]
-        instance.user.mobile = user_data["mobile"]
-
         department = None
         department_data = self.context.pop('department', None)
         if department_data and department_data.get('id', None):
@@ -158,6 +155,9 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
         user_password = user_data.pop('password', None)
         if user_password:
             instance.user.set_password(user_password)
+
+        for key, value in user_data.items():
+            setattr(instance.user, key, value)
 
         instance.user.permission = permission
         instance.user.save()

@@ -1,5 +1,5 @@
 import time
-from django.db.models import Q
+from django.db.models import Q, Count
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -178,5 +178,83 @@ class AttendanceTimeViewSet(XLSXFileMixin, viewsets.ModelViewSet):
         queryset = self.get_queryset()
         return Response(
             s.AttendanceTimeExportSerializer(queryset, many=True).data,
+            status=status.HTTP_200_OK
+        )
+
+
+class AttendanceRuleViewSet(XLSXFileMixin, viewsets.ModelViewSet):
+
+    queryset = m.AttendanceRule.objects.all()
+    serializer_class = s.AttendanceRuleSerializer
+    body = EXCEL_BODY_STYLE
+
+    def get_column_header(self):
+        ret = EXCEL_HEAD_STYLE
+        ret['titles'] = [
+            '部门', '考勤时间',
+
+        ]
+        return ret
+
+    def create(self, request):
+        context = {
+            'attendees': request.data.pop('attendees', None),
+            'nonattendees': request.data.pop('nonattendees', None),
+            'events': request.data.pop('events', None),
+        }
+        serializer = self.serializer_class(
+            data=request.data,
+            context=context
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
+
+    def update(self, request, pk=None):
+        instance = self.get_object()
+        context = {
+            'attendees': request.data.pop('attendees', None),
+            'nonattendees': request.data.pop('nonattendees', None),
+            'events': request.data.pop('events', None),
+        }
+        serializer = self.serializer_class(
+            instance,
+            data=request.data,
+            context=context
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(
+            queryset.annotate(attendees_num=Count('attendees'), nonattendees_num=Count('nonattendees'))
+        )
+        serializer = s.AttendanceRuleListSerializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        instance = self.get_object()
+        return Response(
+            s.AttendanceRuleDetailSerializer(instance).data,
+            status=status.HTTP_200_OK
+        )
+
+    @action(detail=False, methods=['post'], url_path="bulk-delete")
+    def bulk_delete(slef, request):
+        m.AttendanceRule.objects.filter(id__in=request.data.get('ids', [])).delete()
+        return Response(
+            {
+                'msg': 'Delete successfully'
+            },
             status=status.HTTP_200_OK
         )

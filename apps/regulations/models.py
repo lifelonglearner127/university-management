@@ -60,6 +60,10 @@ class AttendanceTime(TimeStampedModel):
 
 class AttendanceRule(TimeStampedModel):
 
+    name = models.CharField(
+        max_length=100
+    )
+
     attendees = models.ManyToManyField(
         TeacherProfile,
         through="AttendanceMembership",
@@ -72,7 +76,7 @@ class AttendanceRule(TimeStampedModel):
         related_name="nonattendee_rules"
     )
 
-    attendance_location = models.ForeignKey(
+    attendance_place = models.ForeignKey(
         AttendancePlace,
         on_delete=models.SET_NULL,
         null=True,
@@ -83,6 +87,7 @@ class AttendanceRule(TimeStampedModel):
         AttendanceTime,
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         related_name="mons",
     )
 
@@ -90,6 +95,7 @@ class AttendanceRule(TimeStampedModel):
         AttendanceTime,
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         related_name="tues",
     )
 
@@ -97,6 +103,7 @@ class AttendanceRule(TimeStampedModel):
         AttendanceTime,
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         related_name="weds",
     )
 
@@ -104,6 +111,7 @@ class AttendanceRule(TimeStampedModel):
         AttendanceTime,
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         related_name="thrs",
     )
 
@@ -111,6 +119,7 @@ class AttendanceRule(TimeStampedModel):
         AttendanceTime,
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         related_name="fris",
     )
 
@@ -118,6 +127,7 @@ class AttendanceRule(TimeStampedModel):
         AttendanceTime,
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         related_name="sats",
     )
 
@@ -125,19 +135,8 @@ class AttendanceRule(TimeStampedModel):
         AttendanceTime,
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         related_name="suns",
-    )
-
-    must_attendance_days = ArrayField(
-        models.DateField(),
-        null=True,
-        blank=True
-    )
-
-    never_attendance_days = ArrayField(
-        models.DateField(),
-        null=True,
-        blank=True
     )
 
 
@@ -173,3 +172,21 @@ class UnAttendenceMembership(models.Model):
     joined_on = models.DateTimeField(
         auto_now_add=True
     )
+
+
+class AttendanceEvent(models.Model):
+
+    rule = models.ForeignKey(
+        AttendanceRule,
+        on_delete=models.CASCADE
+    )
+
+    is_attendance_day = models.BooleanField(
+        default=True
+    )
+
+    start_date = models.DateField()
+
+    end_date = models.DateField()
+
+    description = models.TextField()
