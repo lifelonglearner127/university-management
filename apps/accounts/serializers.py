@@ -78,7 +78,7 @@ class UserPermissionNameSerializer(serializers.ModelSerializer):
         )
 
 
-class AuthSerializer(serializers.Serializer):
+class AuthSerializer(serializers.ModelSerializer):
     """
     Serializer for auth data of user
     """

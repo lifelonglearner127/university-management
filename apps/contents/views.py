@@ -162,19 +162,16 @@ class AdvertisementViewSet(viewsets.ModelViewSet):
         obj.recent_read_on = datetime.now()
         obj.save()
         return Response(
-            s.AdvertisementAppSerializer(
-                obj.advertisement,
-                context={'audience': request.user},
-            ).data,
+            s.AdvertisementAppSerializer(obj).data,
             status=status.HTTP_200_OK
         )
 
     @action(detail=False, url_path='me/all')
     def my_advertisement(self, request):
         page = self.paginate_queryset(
-            m.Advertisement.publisheds.filter(
-                audiences=request.user,
-            ).order_by('advertisementaudiences__is_read', '-updated')
+            m.AdvertisementAudiences.objects.filter(
+                advertisement__is_published=True, advertisement__is_deleted=False, audience=request.user
+            ).order_by('is_read', '-recent_read_on')
         )
         serializer = s.AdvertisementAppSerializer(
             page,
@@ -185,38 +182,37 @@ class AdvertisementViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, url_path='me/unreads')
     def my_unread_advertisement(self, request):
-        query_filter = Q(audiences=request.user) & ~Q(advertisementaudiences__is_read=True)
         page = self.paginate_queryset(
-            m.Advertisement.publisheds.filter(
-                query_filter
-            ).order_by('-updated')
+            m.AdvertisementAudiences.objects.filter(
+                advertisement__is_published=True, advertisement__is_deleted=False, audience=request.user, is_read=False
+            ).order_by('-advertisement__updated')
         )
         serializer = s.AdvertisementAppSerializer(
             page,
             context={'audience': request.user},
-            many=True
+            many=True,
         )
         return self.get_paginated_response(serializer.data)
 
     @action(detail=False, url_path='me/reads')
     def my_read_advertisement(self, request):
-        query_filter = Q(audiences=request.user) & Q(advertisementaudiences__is_read=True)
         page = self.paginate_queryset(
-            m.Advertisement.publisheds.filter(
-                query_filter
-            ).order_by('-advertisementaudiences__recent_read_on')
+            m.AdvertisementAudiences.objects.filter(
+                advertisement__is_published=True, advertisement__is_deleted=False, audience=request.user, is_read=True
+            ).order_by('-recent_read_on')
         )
         serializer = s.AdvertisementAppSerializer(
             page,
             context={'audience': request.user},
-            many=True
+            many=True,
         )
         return self.get_paginated_response(serializer.data)
 
     @action(detail=False, url_path="me/unread-count")
     def my_unread_advertisement_count(self, request):
-        query_filter = Q(audiences=request.user) & ~Q(advertisementaudiences__is_read=True)
-        my_unread_count = m.Advertisement.publisheds.filter(query_filter).count()
+        my_unread_count = m.AdvertisementAudiences.objects.filter(
+            advertisement__is_published=True, advertisement__is_deleted=False, audience=request.user, is_read=False
+        ).count()
         return Response(
             {
                 'count': my_unread_count
@@ -229,6 +225,23 @@ class NotificationViewSet(viewsets.ModelViewSet):
 
     queryset = m.Notification.availables.all()
     serializer_class = s.NotificationSerializer
+
+    def get_queryset(self):
+        queryset = self.queryset
+        query_str = self.request.query_params.get('q', None)
+        if query_str:
+            queryset = queryset.filter(title__icontains=query_str)
+
+        sort_str = self.request.query_params.get('sort', None)
+        if sort_str:
+            queryset = queryset.order_by(sort_str)
+
+        return queryset
+
+    def list(self, request):
+        page = self.paginate_queryset(self.get_queryset())
+        serializer = s.NotificationListSerializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
     def create(self, request):
         audiences = request.data.pop('audiences', [])
@@ -342,60 +355,69 @@ class NotificationViewSet(viewsets.ModelViewSet):
         obj, created = m.NotificationAudiences.objects.get_or_create(
             notification=instance, audience=request.user
         )
-        obj.is_read = True
+        if not obj.is_read:
+            obj.is_read = True
+
         obj.recent_read_on = datetime.now()
         obj.save()
         return Response(
-            s.NotificationAppSerializer(
-                obj.notification,
-                context={'audience': request.user},
-            ).data,
+            s.NotificationAppSerializer(obj).data,
             status=status.HTTP_200_OK
         )
 
     @action(detail=False, url_path='me/all')
     def my_notifications(self, request):
         page = self.paginate_queryset(
-            m.Notification.sents.filter(
-                audiences=request.user,
-            ).order_by('notificationsaudiences__is_read', '-updated')
+            m.NotificationAudiences.objects.filter(
+                notification__is_sent=True, notification__is_deleted=False, audience=request.user
+            ).order_by('is_read', '-recent_read_on')
         )
+
         serializer = s.NotificationAppSerializer(
             page,
-            context={'audience': request.user},
             many=True
         )
         return self.get_paginated_response(serializer.data)
 
     @action(detail=False, url_path='me/unreads')
     def my_unread_notifications(self, request):
-        query_filter = Q(audiences=request.user) & ~Q(notificationsaudiences__is_read=True)
         page = self.paginate_queryset(
-            m.Notification.sents.filter(
-                query_filter
-            ).order_by('-updated')
+            m.NotificationAudiences.objects.filter(
+                notification__is_sent=True, notification__is_deleted=False, audience=request.user, is_read=False
+            ).order_by('is_read', '-recent_read_on')
         )
+
         serializer = s.NotificationAppSerializer(
             page,
-            context={'audience': request.user},
             many=True
         )
         return self.get_paginated_response(serializer.data)
 
     @action(detail=False, url_path='me/reads')
     def my_read_notifications(self, request):
-        query_filter = Q(audiences=request.user) & Q(notificationsaudiences__is_read=True)
         page = self.paginate_queryset(
-            m.Notification.sents.filter(
-                query_filter
-            ).order_by('-updated')
+            m.NotificationAudiences.objects.filter(
+                notification__is_sent=True, notification__is_deleted=False, audience=request.user, is_read=True
+            ).order_by('is_read', '-recent_read_on')
         )
+
         serializer = s.NotificationAppSerializer(
             page,
-            context={'audience': request.user},
             many=True
         )
         return self.get_paginated_response(serializer.data)
+
+    @action(detail=False, url_path="me/unread-count")
+    def my_unread_notifications_count(self, request):
+        my_unread_count = m.NotificationAudiences.objects.filter(
+            notification__is_sent=True, notification__is_deleted=False, audience=request.user, is_read=False
+        ).count()
+        return Response(
+            {
+                'count': my_unread_count
+            },
+            status=status.HTTP_200_OK
+        )
 
 
 class AdvertisementAppDetailView(DetailView):

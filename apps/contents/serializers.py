@@ -11,6 +11,8 @@ batch_size = 100
 
 class AdvertisementAudienceSerializer(serializers.ModelSerializer):
 
+    recent_read_on = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
+
     class Meta:
         model = m.AdvertisementAudiences
         exclude = (
@@ -127,38 +129,13 @@ class AdvertisementDetailSerializer(serializers.ModelSerializer):
 class AdvertisementAppSerializer(serializers.ModelSerializer):
     """Advertisement serializer for teacher app
     """
-    author = UserNameSerializer()
-    created = serializers.DateTimeField(
-        format='%Y-%m-%d %H:%M:%S', required=False
-    )
-    updated = serializers.DateTimeField(
-        format='%Y-%m-%d %H:%M:%S', required=False
-    )
-    meta = serializers.SerializerMethodField()
+    advertisement = AdvertisementListSerializer()
 
     class Meta:
-        model = m.Advertisement
+        model = m.AdvertisementAudiences
         fields = (
-            'id', 'title', 'author', 'is_published', 'is_deleted', 'meta',
-            'created', 'updated'
+            'id', 'advertisement', 'is_read', 'recent_read_on',
         )
-
-    def get_meta(self, instance):
-        advertisement_audience = m.AdvertisementAudiences.objects.filter(
-            advertisement=instance,
-            audience=self.context.get('audience', None)
-        ).first()
-        if advertisement_audience:
-            return {
-                'recent_read_on':
-                advertisement_audience.recent_read_on.strftime('%Y-%m-%d %H:%M:%S'),
-                'is_read': advertisement_audience.is_read
-            }
-        else:
-            return {
-                'recent_read_on': None,
-                'is_read': False
-            }
 
 
 class NotificationAudiencesAdminSerializer(serializers.ModelSerializer):
@@ -181,7 +158,7 @@ class NotificationAudiencesSerializer(serializers.ModelSerializer):
     class Meta:
         model = m.NotificationAudiences
         exclude = (
-            'advertisement',
+            'notification',
         )
 
 
@@ -245,6 +222,17 @@ class NotificationCreateUpdateSerializer(serializers.ModelSerializer):
         return instance
 
 
+class NotificationListSerializer(serializers.ModelSerializer):
+
+    author = UserNameSerializer(read_only=True)
+
+    class Meta:
+        model = m.Notification
+        fields = (
+            'id', 'title', 'author', 'is_sent', 'sent_on',
+        )
+
+
 class NotificationDetailSerializer(serializers.ModelSerializer):
 
     author = UserNameSerializer(read_only=True)
@@ -283,34 +271,10 @@ class NotificationAudiencesReadReportSerializer(serializers.ModelSerializer):
 class NotificationAppSerializer(serializers.ModelSerializer):
     """Notifications Serializer for teacher app
     """
-    created = serializers.DateTimeField(
-        format='%Y-%m-%d %H:%M:%S', required=False
-    )
-    updated = serializers.DateTimeField(
-        format='%Y-%m-%d %H:%M:%S', required=False
-    )
-    meta = serializers.SerializerMethodField()
+    notification = NotificationListSerializer()
 
     class Meta:
-        model = m.Notification
+        model = m.NotificationAudiences
         fields = (
-            'id', 'title', 'body', 'author', 'status', 'meta',
-            'created', 'updated',
+            'id', 'notification', 'is_read', 'recent_read_on',
         )
-
-    def get_meta(self, instance):
-        notification_audience = m.NotificationAudiences.objects.filter(
-            notification=instance,
-            audience=self.context.get('audience', None)
-        ).first()
-        if notification_audience:
-            return {
-                'recent_read_on':
-                notification_audience.recent_read_on.strftime('%Y-%m-%d %H:%M:%S'),
-                'is_read': notification_audience.is_read
-            }
-        else:
-            return {
-                'recent_read_on': None,
-                'is_read': False
-            }
