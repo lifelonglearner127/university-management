@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
 from ..teachers.models import TeacherProfile
 from ..core.models import TimeStampedModel
 

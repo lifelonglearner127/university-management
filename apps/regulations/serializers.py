@@ -143,8 +143,8 @@ class AttendanceRuleSerializer(serializers.ModelSerializer):
 
         # create events
         objs = (m.AttendanceEvent(rule=attendance_rule, is_attendance_day=event['is_attendance_day'],
-                                 start_date=event['start_date'], end_date=event['end_date'],
-                                 description=event['description'])
+                                  start_date=event['start_date'], end_date=event['end_date'],
+                                  description=event['description'])
                 for event in events)
         while True:
             batch = list(islice(objs, batch_size))
