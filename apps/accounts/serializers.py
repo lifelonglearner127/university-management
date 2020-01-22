@@ -245,6 +245,42 @@ class ShortUserSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
 
+    avatar = serializers.SerializerMethodField(required=False)
+
     class Meta:
         model = m.User
         fields = '__all__'
+
+    def create(self, validated_data):
+        password = validated_data.pop('password', None)
+        user = m.User(**validated_data)
+        if password:
+            user.set_password(password)
+
+        user.save()
+        return user
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        if password:
+            instance.set_password(password)
+
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+
+        instance.save()
+        return instance
+
+    def get_avatar(self, instance):
+        try:
+            profile = instance.profile
+            request = self.context.get('request', None)
+            avatar = profile.images.first()
+            if avatar and request:
+                avatar = request.build_absolute_uri(avatar.image.url)
+            else:
+                avatar = ''
+        except ObjectDoesNotExist:
+            avatar = ''
+
+        return avatar

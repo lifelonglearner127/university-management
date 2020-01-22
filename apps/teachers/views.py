@@ -322,16 +322,16 @@ class TeacherViewSet(XLSXFileMixin, viewsets.ModelViewSet):
             status=status.HTTP_200_OK
         )
 
-    @action(detail=False, methods=['post'], url_path="delete-image")
-    def delete_my_image(self, request, pk=None):
-        instance = self.get_object()
-        image_id = request.data.get('id', None)
-        if image_id:
-            instance.images.filter(id=image_id).delete()
+    @action(detail=False, methods=['post'], url_path="me/delete-images")
+    def delete_my_images(self, request):
+        profile = request.user.profile
+        image_ids = request.data.get('ids', [])
+        if image_ids:
+            profile.images.filter(id__in=image_ids).delete()
 
         return Response(
             self.serializer_class(
-                instance,
+                profile,
                 context={'request': request}
             ).data,
             status=status.HTTP_200_OK

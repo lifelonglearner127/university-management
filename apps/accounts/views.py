@@ -64,6 +64,21 @@ class UserViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK
         )
 
+    @action(detail=False, methods=['post'], url_path='update-me')
+    def update_me(self, request):
+        serializer = s.UserSerializer(
+            request.user,
+            data=request.data,
+            context={'request': request},
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
+
 
 class UserPermissionViewSet(viewsets.ModelViewSet):
 

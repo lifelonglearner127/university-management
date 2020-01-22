@@ -63,6 +63,13 @@ class User(AbstractBaseUser):
         validators=[validate_mobile]
     )
 
+    imei = models.CharField(
+        max_length=100,
+        unique=True,
+        null=True,
+        blank=True
+    )
+
     device_token = models.CharField(
         max_length=100,
         null=True,
