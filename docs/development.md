@@ -1,12 +1,15 @@
 ## Development
+- [Setting Development Environment](#setting-development-environment)
+- [Django admin commands](#django-admin-commands)
 
-### Prerequisites
+### Setting Development Environment
+#### Prerequisites
 - Git
 - Python3.6 or above
 - Virtualenv
 - Postgresql 11 or above
 
-### Postgresql Installation & Configuration
+#### Postgresql Installation & Configuration
 - Installation
 
     Please refer to this [link](https://www.postgresql.org/download/) to install Postgresql
@@ -21,7 +24,7 @@
     GRANT ALL PRIVILEGES ON DATABASE "database_name" to my_username;
     ```
 
-### Clone and installing project into local
+#### Clone and installing project into local
 - Clone project 
     ```
     git clone https://github.com/lifelonglearner127/university-management.git
@@ -40,4 +43,26 @@
     python manage.py migrate
     python manage.py createsuperuser
     python manage.py runserver
+    ```
+
+### Django admin commands
+- Saving db data to fixture file
+    ```
+    python manage.py dumpdata [app_label[.ModelName] [app_label[.ModelName] ...]]
+
+    python manage.py dumpdata accounts.User accounts.UserPermission accounts.Permission --indent 4 --output fixtures/accounts.json
+    
+    python manage.py dumpdata contents.Advertisement contents.AdvertisementAudiences contents.Notification contents.NotificationAudiences --indent 4 --output fixtures/contents.json
+    
+    python manage.py dumpdata regulations.AttendancePlace regulations.TimeSlot regulations.AttendanceTime regulations.AttendanceRule regulations.AttendanceMembership regulations.UnAttendenceMembership regulations.AttendanceEvent regulations.AttendanceHistory --indent 4 --output fixtures/regulations.json
+
+    python manage.py dumpdata teachers.Department teachers.Position teachers.TeacherProfile teachers.TeacherImage --indent 4 --output fixtures/teachers.json
+    ```
+
+- Providing data with fixtures
+    ```
+    python manage.py loaddata fixtures/accounts.json
+    python manage.py loaddata fixtures/contents.json
+    python manage.py loaddata fixtures/regulations.json
+    python manage.py loaddata fixtures/teachers.json
     ```
