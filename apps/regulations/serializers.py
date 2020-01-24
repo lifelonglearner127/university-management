@@ -367,6 +367,7 @@ class AttendanceHistorySerializer(serializers.ModelSerializer):
 class AttendSerializer(serializers.ModelSerializer):
 
     image = Base64ImageField()
+    identified_on = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S', required=False)
 
     class Meta:
         model = m.AttendanceHistory
@@ -408,7 +409,7 @@ class AttendSerializer(serializers.ModelSerializer):
             (current_time < time_slot.start_open_time or current_time > time_slot.finish_open_time)
         ) or (
             not data['is_open_attend'] and
-            (current_time > time_slot.start_close_time or current_time < time_slot.finish_close_time)
+            (current_time < time_slot.start_close_time or current_time > time_slot.finish_close_time)
         ):
             raise e.OUT_OF_ATTENDANCE_TIME
 

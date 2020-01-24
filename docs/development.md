@@ -1,6 +1,6 @@
 ## Development
 - [Setting Development Environment](#setting-development-environment)
-- [Django admin commands](#django-admin-commands)
+- [Commands](#commands)
 
 ### Setting Development Environment
 #### Prerequisites
@@ -45,7 +45,7 @@
     python manage.py runserver
     ```
 
-### Django admin commands
+### Commands
 - Saving db data to fixture file
     ```
     python manage.py dumpdata [app_label[.ModelName] [app_label[.ModelName] ...]]
@@ -65,4 +65,11 @@
     python manage.py loaddata fixtures/contents.json
     python manage.py loaddata fixtures/regulations.json
     python manage.py loaddata fixtures/teachers.json
+    ```
+
+- DB Dump
+    ```
+    pg_dump -U school_dev -h localhost schools -a -F p -f backups/dump.sql
+
+    psql -U school_dev -d schools -f dump.sql
     ```

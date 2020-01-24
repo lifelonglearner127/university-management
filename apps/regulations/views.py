@@ -400,13 +400,13 @@ class AttendAPIView(views.APIView):
     def post(self, request):
         serializer = s.AttendSerializer(
             data=request.data,
-            context={'user': request.user}
+            context={'user': request.user, 'request': request}
         )
 
-        code = 0
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()
+            code = 0
             data = serializer.data
         except e.FACE_RECOGNITION_NO_DATASET:
             code = -1
@@ -423,6 +423,9 @@ class AttendAPIView(views.APIView):
         except e.TIMESLOT_MISSING:
             code = -1
             data = 'Timeslot error'
+        except Exception:
+            code = -1
+            data = 'Unkonw Issue'
         finally:
             if code == 0:
                 return Response(
