@@ -54,7 +54,7 @@
     
     python manage.py dumpdata contents.Advertisement contents.AdvertisementAudiences contents.Notification contents.NotificationAudiences --indent 4 --output fixtures/contents.json
     
-    python manage.py dumpdata regulations.AttendancePlace regulations.TimeSlot regulations.AttendanceTime regulations.AttendanceRule regulations.AttendanceMembership regulations.UnAttendenceMembership regulations.AttendanceEvent regulations.AttendanceHistory --indent 4 --output fixtures/regulations.json
+    python manage.py dumpdata regulations.AttendancePlace regulations.TimeSlot regulations.AttendanceTime regulations.AttendanceRule regulations.AttendanceMembership regulations.UnAttendanceMembership regulations.AttendanceEvent regulations.AttendanceHistory --indent 4 --output fixtures/regulations.json
 
     python manage.py dumpdata teachers.Department teachers.Position teachers.TeacherProfile teachers.TeacherImage --indent 4 --output fixtures/teachers.json
     ```

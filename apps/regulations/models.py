@@ -71,7 +71,7 @@ class AttendanceRule(TimeStampedModel):
 
     nonattendees = models.ManyToManyField(
         TeacherProfile,
-        through="UnAttendenceMembership",
+        through="UnAttendanceMembership",
         related_name="nonattendee_rules"
     )
 
@@ -159,7 +159,7 @@ class AttendanceMembership(models.Model):
         return f"{self.teacher.user.name}'s' - {self.rule.name}"
 
 
-class UnAttendenceMembership(models.Model):
+class UnAttendanceMembership(models.Model):
 
     teacher = models.ForeignKey(
         TeacherProfile,

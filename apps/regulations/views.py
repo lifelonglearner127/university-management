@@ -259,7 +259,10 @@ class AttendanceRuleViewSet(XLSXFileMixin, viewsets.ModelViewSet):
     def list(self, request):
         queryset = self.get_queryset()
         page = self.paginate_queryset(
-            queryset.annotate(attendees_num=Count('attendees'), nonattendees_num=Count('nonattendees'))
+            queryset.annotate(
+                attendees_num=Count('attendancemembership', distinct=True),
+                nonattendees_num=Count('unattendancemembership', distinct=True)
+            )
         )
         serializer = s.AttendanceRuleListSerializer(page, many=True)
         return self.get_paginated_response(serializer.data)

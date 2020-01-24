@@ -192,12 +192,12 @@ class AttendanceRuleSerializer(serializers.ModelSerializer):
 
         # create nonattendees
         nonattendees = m.TeacherProfile.objects.filter(id__in=nonattendees)
-        objs = (m.UnAttendenceMembership(teacher=teacher, rule=attendance_rule) for teacher in nonattendees)
+        objs = (m.UnAttendanceMembership(teacher=teacher, rule=attendance_rule) for teacher in nonattendees)
         while True:
             batch = list(islice(objs, batch_size))
             if not batch:
                 break
-            m.UnAttendenceMembership.objects.bulk_create(batch, batch_size)
+            m.UnAttendanceMembership.objects.bulk_create(batch, batch_size)
 
         # create events
         objs = (m.AttendanceEvent(rule=attendance_rule, is_attendance_day=event['is_attendance_day'],
@@ -239,19 +239,19 @@ class AttendanceRuleSerializer(serializers.ModelSerializer):
         # update nonattendees
         old_non_attendees_ids = set(instance.nonattendees.values_list('id', flat=True))
         new_non_attendees_ids = set(nonattendees)
-        m.UnAttendenceMembership.objects.filter(
+        m.UnAttendanceMembership.objects.filter(
             rule=instance, teacher__id__in=old_non_attendees_ids.difference(new_non_attendees_ids)
         ).delete()
 
         new_non_attendees = m.TeacherProfile.objects.filter(
             id__in=new_non_attendees_ids.difference(old_non_attendees_ids)
         )
-        objs = (m.UnAttendenceMembership(rule=instance, teacher=teacher) for teacher in new_non_attendees)
+        objs = (m.UnAttendanceMembership(rule=instance, teacher=teacher) for teacher in new_non_attendees)
         while True:
             batch = list(islice(objs, batch_size))
             if not batch:
                 break
-            m.UnAttendenceMembership.objects.bulk_create(batch, batch_size)
+            m.UnAttendanceMembership.objects.bulk_create(batch, batch_size)
 
         # update events
         old_event_ids = set(m.AttendanceEvent.objects.filter(rule=instance).values_list('id', flat=True))

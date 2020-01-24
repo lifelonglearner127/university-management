@@ -33,6 +33,11 @@ class AttendanceMembershipAdmin(admin.ModelAdmin):
     pass
 
 
+@admin.register(m.UnAttendanceMembership)
+class UnAttendanceMembershipAdmin(admin.ModelAdmin):
+    pass
+
+
 @admin.register(m.AttendanceHistory)
 class AttendanceHistoryAdmin(admin.ModelAdmin):
     pass
