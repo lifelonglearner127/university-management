@@ -155,6 +155,9 @@ class AttendanceMembership(models.Model):
         auto_now_add=True
     )
 
+    def __str__(self):
+        return f"{self.teacher.user.name}'s' - {self.rule.name}"
+
 
 class UnAttendenceMembership(models.Model):
 
@@ -177,7 +180,8 @@ class AttendanceEvent(models.Model):
 
     rule = models.ForeignKey(
         AttendanceRule,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='events'
     )
 
     is_attendance_day = models.BooleanField(
@@ -189,3 +193,49 @@ class AttendanceEvent(models.Model):
     end_date = models.DateField()
 
     description = models.TextField()
+
+
+class AttendanceHistory(models.Model):
+
+    membership = models.ForeignKey(
+        AttendanceMembership,
+        on_delete=models.CASCADE,
+        related_name='history'
+    )
+
+    # You might think why below 2 fields are necessary in this history model. I thought so.
+    # ...
+    time_slot = models.ForeignKey(
+        TimeSlot,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    is_open_attend = models.BooleanField(
+        default=True
+    )
+
+    identified_on = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    image = models.ImageField()
+
+    longitude = models.DecimalField(
+        max_digits=20,
+        decimal_places=10,
+        null=True,
+        blank=True
+    )
+
+    latitude = models.DecimalField(
+        max_digits=20,
+        decimal_places=10,
+        null=True,
+        blank=True
+    )
+
+    is_right_place = models.BooleanField(
+        default=True
+    )

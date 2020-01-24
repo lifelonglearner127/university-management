@@ -1,8 +1,19 @@
+import os
+
+import face_recognition
+import numpy as np
+from datetime import date, datetime
+from django.conf import settings
+from django.shortcuts import get_object_or_404
+from geopy import distance
 from itertools import islice
 from rest_framework import serializers
 
 from . import models as m
+from . import exceptions as e
+from .helpers import get_week_day
 from ..teachers.serializers import ShortTeacherProfileSerializer
+from ..core.serializers import Base64ImageField
 
 
 batch_size = 100
@@ -33,6 +44,40 @@ class AttendancePlaceSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ShortTimeSlotSerializer(serializers.ModelSerializer):
+
+    open_time = serializers.TimeField(format="%H:%M")
+    close_time = serializers.TimeField(format="%H:%M")
+
+    class Meta:
+        model = m.TimeSlot
+        fields = (
+            'open_time', 'close_time'
+        )
+
+
+class TimeSlotOpenTimeSerializer(serializers.ModelSerializer):
+
+    rule_time = serializers.TimeField(format="%H:%M", source='open_time')
+
+    class Meta:
+        model = m.TimeSlot
+        fields = (
+            'id', 'rule_time'
+        )
+
+
+class TimeSlotCloseTimeSerializer(serializers.ModelSerializer):
+
+    rule_time = serializers.TimeField(format="%H:%M", source='close_time')
+
+    class Meta:
+        model = m.TimeSlot
+        fields = (
+            'id', 'rule_time'
+        )
+
+
 class TimeSlotSerializer(serializers.ModelSerializer):
 
     open_time = serializers.TimeField(format="%H:%M")
@@ -44,9 +89,7 @@ class TimeSlotSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = m.TimeSlot
-        exclude = (
-            'id',
-        )
+        fields = '__all__'
 
 
 class AttendanceTimeNameSerializer(serializers.ModelSerializer):
@@ -83,10 +126,25 @@ class AttendanceTimeSerializer(serializers.ModelSerializer):
 
         instance.save()
 
-        instance.slots.clear()
-        for slot in slots:
-            obj = m.TimeSlot.objects.create(**slot)
-            instance.slots.add(obj)
+        old_slot_ids = set(instance.slots.values_list('id', flat=True))
+        new_slot_ids = set({})
+        # instance.slots.clear()
+        for slot_data in slots:
+            slot_id = slot_data.get('id', None)
+            if slot_id:
+                new_slot_ids.add(slot_id)
+                slot = get_object_or_404(m.TimeSlot, id=slot_id)
+                for key, value in slot_data.items():
+                    setattr(slot, key, value)
+
+                slot.save()
+            else:
+                obj = m.TimeSlot.objects.create(**slot_data)
+                instance.slots.add(obj)
+
+        instance.slots.filter(
+            id__in=old_slot_ids.difference(new_slot_ids)
+        ).delete()
 
         return instance
 
@@ -295,3 +353,78 @@ class AttendanceRuleDetailSerializer(serializers.ModelSerializer):
     def get_events(self, instance):
         events = m.AttendanceEvent.objects.filter(rule=instance)
         return AttendanceEventSerializer(events, many=True).data
+
+
+class AttendanceHistorySerializer(serializers.ModelSerializer):
+
+    image = Base64ImageField()
+
+    class Meta:
+        model = m.AttendanceHistory
+        fields = '__all__'
+
+
+class AttendSerializer(serializers.ModelSerializer):
+
+    image = Base64ImageField()
+
+    class Meta:
+        model = m.AttendanceHistory
+        fields = '__all__'
+
+    def create(self, validated_data):
+        attendance_place = validated_data['membership'].rule.attendance_place
+        if attendance_place:
+            distance_delta = distance.distance((attendance_place.latitude, attendance_place.longitude),
+                                               (validated_data['latitude'], validated_data['longitude'])).m
+            if distance_delta > attendance_place.radius:
+                validated_data['is_right_place'] = False
+
+        return m.AttendanceHistory.objects.create(**validated_data)
+
+    def validate(self, data):
+        # Rule validations
+        today = date.today()
+        membership = data['membership']
+        time_slot = data['time_slot']
+        if membership.rule.events.filter(
+            is_attendance_day=False, start_date__gte=today, end_date__lte=today
+        ).exists():
+            raise e.NO_ATTENDANCE_DAY
+
+        # check day attendance rule
+        day_rule = get_week_day(membership.rule, today.weekday())
+        if not day_rule:
+            raise e.NO_ATTENDANCE_DAY
+
+        # check whether day rule has time slots
+        if time_slot not in day_rule.slots.all():
+            raise e.TIMESLOT_MISSING
+
+        # check whether it is in range of attendable time
+        current_time = datetime.now().time()
+        if (
+            data['is_open_attend'] and
+            (current_time < time_slot.start_open_time or current_time > time_slot.finish_open_time)
+        ) or (
+            not data['is_open_attend'] and
+            (current_time > time_slot.start_close_time or current_time < time_slot.finish_close_time)
+        ):
+            raise e.OUT_OF_ATTENDANCE_TIME
+
+        # face validations
+        query_image = face_recognition.load_image_file(data['image'])
+        query_encoding = face_recognition.face_encodings(query_image)[0]
+        user = self.context.get('user')
+        username = user.username
+        file_name = os.path.join(settings.FEATURE_ROOT, f"{username}.txt")
+        if not os.path.exists(file_name):
+            raise e.FACE_RECOGNITION_NO_DATASET('No dataset')
+
+        encodings = np.loadtxt(file_name)
+        matches = face_recognition.compare_faces(encodings, query_encoding)
+        matches_count = matches.count(True)
+        if matches_count < int(len(matches) * 0.2):
+            raise e.FACE_RECOGNITION_FAILED('Failed recognition')
+
+        return data

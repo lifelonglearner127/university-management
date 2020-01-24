@@ -26,3 +26,13 @@ class AttendanceRuleAdmin(admin.ModelAdmin):
 @admin.register(m.AttendanceEvent)
 class AttendanceEventAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(m.AttendanceMembership)
+class AttendanceMembershipAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(m.AttendanceHistory)
+class AttendanceHistoryAdmin(admin.ModelAdmin):
+    pass

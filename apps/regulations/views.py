@@ -1,6 +1,7 @@
 import time
+from datetime import date, datetime, timedelta
 from django.db.models import Q, Count
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, views
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from drf_renderer_xlsx.mixins import XLSXFileMixin
@@ -8,6 +9,8 @@ from drf_renderer_xlsx.renderers import XLSXRenderer
 
 from . import models as m
 from . import serializers as s
+from . import exceptions as e
+from .helpers import get_week_day
 from ..core.export import EXCEL_BODY_STYLE, EXCEL_HEAD_STYLE
 
 
@@ -133,9 +136,28 @@ class AttendanceTimeViewSet(XLSXFileMixin, viewsets.ModelViewSet):
 
     def update(self, request, pk=None):
         instance = self.get_object()
+        time_slots = request.data.pop('slots')
         context = {
-            'slots': request.data.pop('slots'),
+            'slots': time_slots,
         }
+
+        for time_slot in time_slots:
+            open_time = time.strptime(time_slot["open_time"], '%H:%M')
+            start_open_time = time.strptime(time_slot["start_open_time"], '%H:%M')
+            finish_open_time = time.strptime(time_slot["finish_open_time"], '%H:%M')
+            close_time = time.strptime(time_slot["close_time"], '%H:%M')
+            start_close_time = time.strptime(time_slot["start_close_time"], '%H:%M')
+            finish_close_time = time.strptime(time_slot["finish_close_time"], '%H:%M')
+
+            if start_open_time > open_time or open_time > finish_open_time or finish_open_time > start_close_time or\
+               start_close_time > close_time or close_time > finish_close_time:
+                return Response(
+                    {
+                        'code': -1,
+                        'msg': 'Time slot incorrect'
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
         serializer = self.serializer_class(
             instance,
@@ -258,3 +280,160 @@ class AttendanceRuleViewSet(XLSXFileMixin, viewsets.ModelViewSet):
             },
             status=status.HTTP_200_OK
         )
+
+
+class AttendanceHistoryViewSet(XLSXFileMixin, viewsets.ModelViewSet):
+
+    queryset = m.AttendanceHistory.objects.all()
+    serializer_class = s.AttendanceHistorySerializer
+
+    def get_queryset(self):
+        pass
+
+
+class AttendanceStatusAPIView(views.APIView):
+
+    def get(self, request, format=None):
+        membership = m.AttendanceMembership.objects.filter(teacher=request.user.profile).order_by('-joined_on').first()
+        if membership:
+            today = date.today()
+
+            # check whether today is attendance day or not
+            if membership.rule.events.filter(
+                is_attendance_day=False, start_date__gte=today, end_date__lte=today
+            ).exists():
+                return Response(
+                    {
+                        "code": -1,
+                        "msg": "No need to attend today"
+                    },
+                    status=status.HTTP_200_OK
+                )
+
+            # check day attendance rule
+            day_rule = get_week_day(membership.rule, today.weekday())
+            if not day_rule:
+                return Response(
+                    {
+                        "code": -1,
+                        "msg": "No attendance rule today, It does not mean that you don't need to attend today"
+                        "Please support administrator"
+                    },
+                    status=status.HTTP_200_OK
+                )
+
+            # check whether day rule has time slots
+            if not day_rule.slots.exists():
+                return Response(
+                    {
+                        "code": -1,
+                        "msg": "Not time specified. It does not mean that you don't need to attend today"
+                        "Please support administrator"
+                    },
+                    status=status.HTTP_200_OK
+                )
+
+            # following part might be a bit of complicated. But it is for convenient in app development
+            current_time = datetime.now()
+            ret = {
+                'membership': membership.id,
+                'rules': []
+            }
+
+            expand_rule_index = 0
+            time_delta = timedelta(days=1)
+            for slot_index, slot in enumerate(day_rule.slots.all()):
+                today_checks = m.AttendanceHistory.objects.filter(
+                    membership=membership, time_slot=slot, identified_on__date=today
+                ).order_by('identified_on')
+
+                open_check, close_check = None, None
+
+                for today_check in today_checks:
+                    identified_on = today_check
+                    if identified_on >= slot.start_open_time and identified_on <= slot.finish_open_time:
+                        open_check = today_check
+                    elif identified_on >= slot.finish_open_time and identified_on <= slot.finish_close_time:
+                        close_check = today_check
+
+                new_time_delta = abs(current_time - datetime.combine(today, slot.open_time))
+                if time_delta > new_time_delta:
+                    time_delta = new_time_delta
+                    expand_rule_index = 2 * slot_index
+
+                new_time_delta = abs(current_time - datetime.combine(today, slot.close_time))
+                if time_delta > new_time_delta:
+                    time_delta = new_time_delta
+                    expand_rule_index = 2 * slot_index + 1
+
+                ret['rules'].append({
+                    'rule': s.TimeSlotOpenTimeSerializer(slot).data,
+                    'check': open_check,
+                    'is_expanded': False
+                })
+                ret['rules'].append({
+                    'rule': s.TimeSlotCloseTimeSerializer(slot).data,
+                    'check': close_check,
+                    'is_expanded': False
+                })
+
+            ret['rules'][expand_rule_index]['is_expanded'] = True
+
+            return Response(
+                ret,
+                status=status.HTTP_200_OK
+            )
+        else:
+            return Response(
+                {
+                    'msg': "You haven't any attendance membership yet"
+                },
+                status=status.HTTP_200_OK
+            )
+
+
+class AttendAPIView(views.APIView):
+
+    def post(self, request):
+        serializer = s.AttendSerializer(
+            data=request.data,
+            context={'user': request.user}
+        )
+
+        code = 0
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            data = serializer.data
+        except e.FACE_RECOGNITION_NO_DATASET:
+            code = -1
+            data = 'No Dataset'
+        except e.FACE_RECOGNITION_FAILED:
+            code = -1
+            data = 'Failed'
+        except e.NO_ATTENDANCE_DAY:
+            code = -1
+            data = 'No attendance day'
+        except e.OUT_OF_ATTENDANCE_TIME:
+            code = -1
+            data = 'Not able to attend befor or after'
+        except e.TIMESLOT_MISSING:
+            code = -1
+            data = 'Timeslot error'
+        finally:
+            if code == 0:
+                return Response(
+                    {
+                        'code': 0,
+                        'data': data
+                    },
+                    status=status.HTTP_200_OK
+                )
+            else:
+                return Response(
+                    {
+                        'code': code,
+                        'msg': data
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )

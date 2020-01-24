@@ -1,9 +1,9 @@
 import base64
 import io
 import os
-import pickle
 import six
 import face_recognition
+import numpy as np
 from django.conf import settings
 from django.db.models import Q
 from rest_framework import viewsets, status
@@ -340,6 +340,9 @@ class TeacherViewSet(XLSXFileMixin, viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], parser_classes=[MultiPartParser], url_path="upload-images")
     def upload_images(self, request, pk=None):
         instance = self.get_object()
+
+        # TODO: speed optimation; create models using bulk_create
+        image_ids = []
         for _, image in request.data.items():
             serializer = s.TeacherImageSerializer(
                 data={
@@ -349,10 +352,12 @@ class TeacherViewSet(XLSXFileMixin, viewsets.ModelViewSet):
             )
             serializer.is_valid(raise_exception=True)
             serializer.save()
+            image_ids.append(serializer.instance.id)
 
         extract_feature.apply_async(
             args=[{
-                'teacher': instance.id
+                'teacher': instance.id,
+                'image_ids': image_ids
             }]
         )
         return Response(
@@ -363,6 +368,9 @@ class TeacherViewSet(XLSXFileMixin, viewsets.ModelViewSet):
     @action(detail=False, methods=['post'], url_path="me/upload-images")
     def upload_my_images(self, request):
         my_profile = request.user.profile
+
+        # TODO: speed optimation; create models using bulk_create
+        image_ids = []
         images = request.data.pop('files', [])
         for image in images:
             serializer = s.TeacherImageSerializer(
@@ -373,12 +381,15 @@ class TeacherViewSet(XLSXFileMixin, viewsets.ModelViewSet):
             )
             serializer.is_valid(raise_exception=True)
             serializer.save()
+            image_ids.append(serializer.instance.id)
 
         extract_feature.apply_async(
             args=[{
-                'teacher': my_profile.id
+                'teacher': my_profile.id,
+                'image_ids': image_ids
             }]
         )
+
         return Response(
             s.TeacherImageSetSerializer(my_profile, context={'request': request}).data,
             status=status.HTTP_200_OK
@@ -394,6 +405,12 @@ class TeacherViewSet(XLSXFileMixin, viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'], url_path="me/identify-face")
     def identify_face(self, request):
+        """
+        Identify face
+
+        This endpoint is not used in actually identifying the faces in attendance system.
+        This is only kind of test version api.
+        """
         query_image = request.data.pop('image', None)
         if query_image is None or not isinstance(query_image, six.string_types) or\
            not query_image.startswith('data:image'):
@@ -423,7 +440,7 @@ class TeacherViewSet(XLSXFileMixin, viewsets.ModelViewSet):
             query_encoding = face_recognition.face_encodings(query_image)[0]
 
             username = request.user.username
-            file_name = os.path.join(settings.FEATURE_ROOT, f"{username}.pickle")
+            file_name = os.path.join(settings.FEATURE_ROOT, f"{username}.txt")
             if not os.path.exists(file_name):
                 return Response(
                     {
@@ -433,7 +450,7 @@ class TeacherViewSet(XLSXFileMixin, viewsets.ModelViewSet):
                     status=status.HTTP_200_OK
                 )
 
-            encodings = pickle.loads(open(file_name, "rb").read())
+            encodings = np.loadtxt(file_name)
             matches = face_recognition.compare_faces(encodings, query_encoding)
             matches_count = matches.count(True)
             if matches_count > int(len(matches) * 0.8):

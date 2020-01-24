@@ -7,7 +7,10 @@ router = DefaultRouter(trailing_slash=False)
 router.register(r'attendance-places', v.AttendancePlaceViewSet)
 router.register(r'attendance-times', v.AttendanceTimeViewSet)
 router.register(r'attendance-rules', v.AttendanceRuleViewSet)
+router.register(r'attendance-history', v.AttendanceHistoryViewSet)
 
 urlpatterns = [
-    path('', include(router.urls))
+    path('', include(router.urls)),
+    path('attendance-status', v.AttendanceStatusAPIView.as_view()),
+    path('attend', v.AttendAPIView.as_view())
 ]
