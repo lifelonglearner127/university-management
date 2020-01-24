@@ -413,6 +413,9 @@ class AttendSerializer(serializers.ModelSerializer):
         ):
             raise e.OUT_OF_ATTENDANCE_TIME
 
+        # TODO OR NOT: Right now I am not sure whether this validation is needed or no.
+        # Filtering duplicate attendance request
+
         # face validations
         query_image = face_recognition.load_image_file(data['image'])
         query_encoding = face_recognition.face_encodings(query_image)[0]

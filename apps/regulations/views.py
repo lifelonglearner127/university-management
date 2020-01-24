@@ -353,10 +353,15 @@ class AttendanceStatusAPIView(views.APIView):
                 open_check, close_check = None, None
 
                 for today_check in today_checks:
-                    identified_on = today_check
-                    if identified_on >= slot.start_open_time and identified_on <= slot.finish_open_time:
+                    # identified_on = today_check.identified_on.time()
+                    # if identified_on >= slot.start_open_time and identified_on <= slot.finish_open_time:
+                    #     open_check = today_check
+                    # elif identified_on >= slot.finish_open_time and identified_on <= slot.finish_close_time:
+                    #     close_check = today_check
+
+                    if today_check.is_open_attend:
                         open_check = today_check
-                    elif identified_on >= slot.finish_open_time and identified_on <= slot.finish_close_time:
+                    else:
                         close_check = today_check
 
                 new_time_delta = abs(current_time - datetime.combine(today, slot.open_time))
@@ -371,12 +376,18 @@ class AttendanceStatusAPIView(views.APIView):
 
                 ret['rules'].append({
                     'rule': s.TimeSlotOpenTimeSerializer(slot).data,
-                    'check': open_check,
+                    'check': s.AttendSerializer(
+                        open_check,
+                        context={'request': request}
+                    ).data,
                     'is_expanded': False
                 })
                 ret['rules'].append({
                     'rule': s.TimeSlotCloseTimeSerializer(slot).data,
-                    'check': close_check,
+                    'check': s.AttendSerializer(
+                        close_check,
+                        context={'request': request}
+                    ).data,
                     'is_expanded': False
                 })
 
