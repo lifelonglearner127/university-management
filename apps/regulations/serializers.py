@@ -432,3 +432,21 @@ class AttendSerializer(serializers.ModelSerializer):
             raise e.FACE_RECOGNITION_FAILED('Failed recognition')
 
         return data
+
+
+class AttendanceReportSerializer(serializers.Serializer):
+
+    attendance_date = serializers.DateField(format='%Y-%m-%d')
+    attendance_time_id = serializers.IntegerField()
+    attendance_time = serializers.TimeField(format="%H:%M")
+    total_member_num = serializers.IntegerField()
+    attendees_num = serializers.IntegerField()
+    late_attendees_num = serializers.IntegerField()
+    early_attendees_num = serializers.IntegerField()
+    absentees_num = serializers.IntegerField()
+    outside_area_num = serializers.IntegerField()
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret['id'] = ret['attendance_date'] + str(ret['attendance_time_id'])
+        return ret

@@ -1,6 +1,7 @@
 import time
 from datetime import date, datetime, timedelta
-from django.db.models import Q, Count
+from django.db.models import F, Q, Count, Case, When
+from django.db.models.functions import TruncDate
 from rest_framework import viewsets, status, views
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -285,13 +286,62 @@ class AttendanceRuleViewSet(XLSXFileMixin, viewsets.ModelViewSet):
         )
 
 
-class AttendanceHistoryViewSet(XLSXFileMixin, viewsets.ModelViewSet):
+class AttendanceDailyReport(XLSXFileMixin, viewsets.ModelViewSet):
 
     queryset = m.AttendanceHistory.objects.all()
-    serializer_class = s.AttendanceHistorySerializer
+    serializer_class = s.AttendanceReportSerializer
+    body = EXCEL_BODY_STYLE
+
+    def get_column_header(self):
+        ret = EXCEL_HEAD_STYLE
+        ret['titles'] = [
+            '日期', '时间', '总人数', '签到', '迟到', '早退', '未签', '范围外次数'
+
+        ]
+        return ret
 
     def get_queryset(self):
-        pass
+        queryset = m.AttendanceHistory.objects.values('id').annotate(
+            attendance_date=TruncDate('identified_on'),
+            attendance_time_id=F('time_slot'),
+            attendance_time=Case(
+                When(is_open_attend=True, then='time_slot__open_time'),
+                When(is_open_attend=False, then='time_slot__close_time')
+            )
+        )
+
+        queryset = queryset.values('attendance_date', 'attendance_time', 'attendance_time_id').annotate(
+            total_member_num=Count('membership__rule__attendees', distinct=True),
+            attendees_num=Count('id', distinct=True),
+            late_attendees_num=Count('id', filter=Q(identified_on__time__gt=F('attendance_time')), distinct=True),
+            early_attendees_num=Count('id', filter=Q(identified_on__time__lte=F('attendance_time')), distinct=True),
+            absentees_num=F('total_member_num')-F('attendees_num'),
+            outside_area_num=Count('id', filter=Q(is_right_place=False), distinct=True),
+        )
+
+        start_date = self.request.query_params.get('startDate', None)
+        if start_date:
+            start_date = datetime.strptime(start_date, '%Y-%m-%d')
+            queryset = queryset.filter(attendance_date__gte=start_date)
+
+        end_date = self.request.query_params.get('endDate', None)
+        if end_date:
+            end_date = datetime.strptime(end_date, '%Y-%m-%d')
+            queryset = queryset.filter(attendance_date__lte=end_date)
+
+        sort_str = self.request.query_params.get('sort', None)
+        if sort_str:
+            queryset = queryset.order_by(sort_str)
+
+        return queryset
+
+    @action(detail=False, url_path="export", renderer_classes=[XLSXRenderer])
+    def export(self, request):
+        queryset = self.get_queryset()
+        return Response(
+            self.serializer_class(queryset, many=True).data,
+            status=status.HTTP_200_OK
+        )
 
 
 class AttendanceStatusAPIView(views.APIView):
