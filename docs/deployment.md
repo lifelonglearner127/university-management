@@ -56,11 +56,12 @@
     cd university-management
     ```
 
-- Creating Virtual environment
+- Creating Virtual environment and configure `.env`
     ```
     virtualenv venv
     source venv/bin/activate
     pip install -r requirements.txt
+    mv .env.example .env
     ```
 
 - Migrate and Create super user
@@ -69,3 +70,14 @@
     python manage.py migrate
     python manage.py createsuperuser
     ```
+
+### Running `uwsgi` and `daphne` service
+- Running Gateway Interface on Local
+    ```
+    sudo cp deploy/university-backend.conf /etc/nginx/sites-available
+    sudo ln -s /etc/nginx/sites-available/university-backend.conf /etc/nginx/sites-enabled/university-backend.conf 
+    daphne --port 9000 --verbosity 1 config.asgi:application
+    uwsgi --ini deploy/university_backend.ini 
+    ```
+
+- 

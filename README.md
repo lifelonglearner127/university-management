@@ -21,7 +21,7 @@
 
 - [Deployment](docs/deployment.md)
 
-    - This document describes how to deploy the project to `alibaba` cloud server step by step.
+    - This document describes how to deploy the project to local or cloud server step by step.
     - Not only that, it also contains some custom scripts running on the server like `db backup`
 
 - [Face Recognition](docs/face-recognition.md)
