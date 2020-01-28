@@ -404,14 +404,23 @@ class AttendSerializer(serializers.ModelSerializer):
 
         # check whether it is in range of attendable time
         current_time = datetime.now().time()
-        if (
-            data['is_open_attend'] and
-            (current_time < time_slot.start_open_time or current_time > time_slot.finish_open_time)
-        ) or (
-            not data['is_open_attend'] and
-            (current_time < time_slot.start_close_time or current_time > time_slot.finish_close_time)
-        ):
+
+        if data['is_open_attend']:
+            attendance_time = time_slot.open_time
+            attendance_start_time = time_slot.start_open_time
+            attendance_end_time = time_slot.finish_open_time
+        else:
+            attendance_time = time_slot.close_time
+            attendance_start_time = time_slot.start_close_time
+            attendance_end_time = time_slot.finish_close_time
+
+        if current_time < attendance_start_time or current_time > attendance_end_time:
             raise e.OUT_OF_ATTENDANCE_TIME
+
+        if current_time <= attendance_time:
+            data['is_late_attendance'] = False
+        else:
+            data['is_late_attendance'] = True
 
         # TODO OR NOT: Right now I am not sure whether this validation is needed or no.
         # Filtering duplicate attendance request
@@ -436,8 +445,10 @@ class AttendSerializer(serializers.ModelSerializer):
 
 class AttendanceReportSerializer(serializers.Serializer):
 
-    attendance_date = serializers.DateField(format='%Y-%m-%d')
+    attendance_rule_id = serializers.IntegerField()
     attendance_time_id = serializers.IntegerField()
+    attendance_date = serializers.DateField(format='%Y-%m-%d')
+    is_open_attend = serializers.BooleanField()
     attendance_time = serializers.TimeField(format="%H:%M")
     total_member_num = serializers.IntegerField()
     attendees_num = serializers.IntegerField()
@@ -449,4 +460,50 @@ class AttendanceReportSerializer(serializers.Serializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret['id'] = ret['attendance_date'] + str(ret['attendance_time_id'])
+        return ret
+
+
+class AttendanceReportDetailSerializer(serializers.Serializer):
+
+    attendance_date = serializers.DateField(format='%Y-%m-%d')
+    attendance_place = serializers.CharField()
+    attendance_dow = serializers.IntegerField()
+    attendance_time = serializers.TimeField(format="%H:%M")
+    attendance_start_time = serializers.TimeField(format="%H:%M")
+    attendance_end_time = serializers.TimeField(format="%H:%M")
+    total_member_num = serializers.IntegerField()
+    attendees_num = serializers.IntegerField()
+    late_attendees_num = serializers.IntegerField()
+    early_attendees_num = serializers.IntegerField()
+    absentees_num = serializers.IntegerField()
+    outside_area_num = serializers.IntegerField()
+
+
+class AttendanceReportExportSerializer(serializers.Serializer):
+
+    attendance_date = serializers.DateField(format='%Y-%m-%d')
+    attendance_time = serializers.TimeField(format="%H:%M")
+    total_member_num = serializers.IntegerField()
+    attendees_num = serializers.IntegerField()
+    late_attendees_num = serializers.IntegerField()
+    early_attendees_num = serializers.IntegerField()
+    absentees_num = serializers.IntegerField()
+    outside_area_num = serializers.IntegerField()
+
+
+class AttendanceDailyHistorySerializer(serializers.Serializer):
+
+    id = serializers.IntegerField()
+    name = serializers.CharField(source='user__name')
+    identified_on = serializers.DateTimeField(format='%H:%M:%S')
+    image = serializers.CharField()
+    is_right_place = serializers.BooleanField()
+    is_late_attendance = serializers.BooleanField()
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        request = self.context.get('request', None)
+        if ret['image'] and request:
+            ret['image'] = request.build_absolute_uri(settings.MEDIA_URL + ret['image'])
+
         return ret

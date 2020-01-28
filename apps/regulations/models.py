@@ -63,6 +63,7 @@ class AttendanceRule(TimeStampedModel):
         max_length=100
     )
 
+    # TODO: merge attendees & nonattendees in the next phase
     attendees = models.ManyToManyField(
         TeacherProfile,
         through="AttendanceMembership",
@@ -143,7 +144,8 @@ class AttendanceMembership(models.Model):
 
     teacher = models.ForeignKey(
         TeacherProfile,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='attendance_membership'
     )
 
     rule = models.ForeignKey(
@@ -203,8 +205,8 @@ class AttendanceHistory(models.Model):
         related_name='history'
     )
 
-    # You might think why below 2 fields are necessary in this history model. I thought so.
-    # ...
+    # You might think why below 3 fields are necessary in this history model. I thought so.
+    # I added these fields for better sql performance
     time_slot = models.ForeignKey(
         TimeSlot,
         on_delete=models.SET_NULL,
@@ -214,6 +216,10 @@ class AttendanceHistory(models.Model):
 
     is_open_attend = models.BooleanField(
         default=True
+    )
+
+    is_late_attendance = models.BooleanField(
+        default=False
     )
 
     identified_on = models.DateTimeField(

@@ -1,7 +1,8 @@
 import time
 from datetime import date, datetime, timedelta
-from django.db.models import F, Q, Count, Case, When
+from django.db.models import F, Q, Count, Case, When, OuterRef, Subquery, ExpressionWrapper, BooleanField
 from django.db.models.functions import TruncDate
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status, views
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -301,8 +302,20 @@ class AttendanceDailyReport(XLSXFileMixin, viewsets.ModelViewSet):
         return ret
 
     def get_queryset(self):
-        queryset = m.AttendanceHistory.objects.values('id').annotate(
+        queryset = self.queryset
+        start_date = self.request.query_params.get('startDate', None)
+        if start_date:
+            start_date = datetime.strptime(start_date, '%Y-%m-%d')
+            queryset = queryset.filter(identified_on__date__gte=start_date)
+
+        end_date = self.request.query_params.get('endDate', None)
+        if end_date:
+            end_date = datetime.strptime(end_date, '%Y-%m-%d')
+            queryset = queryset.filter(identified_on__date__lte=end_date)
+
+        queryset = queryset.values('id').annotate(
             attendance_date=TruncDate('identified_on'),
+            attendance_rule_id=F('membership__rule'),
             attendance_time_id=F('time_slot'),
             attendance_time=Case(
                 When(is_open_attend=True, then='time_slot__open_time'),
@@ -310,24 +323,15 @@ class AttendanceDailyReport(XLSXFileMixin, viewsets.ModelViewSet):
             )
         )
 
-        queryset = queryset.values('attendance_date', 'attendance_time', 'attendance_time_id').annotate(
+        queryset = queryset.values('attendance_rule_id', 'attendance_date', 'attendance_time', 'attendance_time_id',
+                                   'is_open_attend').annotate(
             total_member_num=Count('membership__rule__attendees', distinct=True),
             attendees_num=Count('id', distinct=True),
             late_attendees_num=Count('id', filter=Q(identified_on__time__gt=F('attendance_time')), distinct=True),
             early_attendees_num=Count('id', filter=Q(identified_on__time__lte=F('attendance_time')), distinct=True),
             absentees_num=F('total_member_num')-F('attendees_num'),
             outside_area_num=Count('id', filter=Q(is_right_place=False), distinct=True),
-        )
-
-        start_date = self.request.query_params.get('startDate', None)
-        if start_date:
-            start_date = datetime.strptime(start_date, '%Y-%m-%d')
-            queryset = queryset.filter(attendance_date__gte=start_date)
-
-        end_date = self.request.query_params.get('endDate', None)
-        if end_date:
-            end_date = datetime.strptime(end_date, '%Y-%m-%d')
-            queryset = queryset.filter(attendance_date__lte=end_date)
+        ).order_by('attendance_date', 'attendance_time')
 
         sort_str = self.request.query_params.get('sort', None)
         if sort_str:
@@ -335,11 +339,95 @@ class AttendanceDailyReport(XLSXFileMixin, viewsets.ModelViewSet):
 
         return queryset
 
+    @action(detail=False, methods=['post'], url_path='by-slot')
+    def get_day_report(self, request):
+        date = request.data.get('date')
+        rule_id = request.data.get('rule')
+        slot = request.data.get('slot')
+        is_open_attend = request.data.get('is_open_attend')
+
+        time_slot = get_object_or_404(m.TimeSlot, id=slot)
+        rule = get_object_or_404(m.AttendanceRule, id=rule_id)
+
+        queryset = self.queryset.filter(
+            membership__rule__id=rule_id,
+            identified_on__date=date,
+            time_slot__id=slot,
+            is_open_attend=is_open_attend
+        )
+
+        if is_open_attend:
+            attendance_time = time_slot.open_time
+            attendance_start_time = time_slot.start_open_time
+            attendance_end_time = time_slot.finish_open_time
+        else:
+            attendance_time = time_slot.close_time
+            attendance_start_time = time_slot.start_close_time
+            attendance_end_time = time_slot.finish_close_time
+
+        ret = queryset.aggregate(
+            total_member_num=Count('membership__rule__attendees', distinct=True),
+            attendees_num=Count('id', distinct=True),
+            late_attendees_num=Count('id', filter=Q(identified_on__time__gt=attendance_time), distinct=True),
+            early_attendees_num=Count('id', filter=Q(identified_on__time__lte=attendance_time), distinct=True),
+            outside_area_num=Count('id', filter=Q(is_right_place=False), distinct=True),
+        )
+        ret['attendance_dow'] = datetime.strptime(date, '%Y-%m-%d').weekday()
+        ret['attendance_place'] = rule.attendance_place.name
+        ret['absentees_num'] = ret['total_member_num'] - ret['attendees_num']
+        ret['attendance_date'] = date
+        ret['attendance_time'] = attendance_time
+        ret['attendance_start_time'] = attendance_start_time
+        ret['attendance_end_time'] = attendance_end_time
+
+        return Response(
+            s.AttendanceReportDetailSerializer(ret).data,
+            status=status.HTTP_200_OK
+        )
+
+    @action(detail=False, methods=['post'], url_path='history-by-day')
+    def get_daily_history(self, request):
+        date = request.data.get('date')
+        rule_id = request.data.get('rule')
+        slot = request.data.get('slot')
+        is_open_attend = request.data.get('is_open_attend')
+
+        rule = get_object_or_404(m.AttendanceRule, id=rule_id)
+
+        queryset = rule.attendees.values('id', 'user__name')
+
+        membership = m.AttendanceMembership.objects.filter(teacher=OuterRef('pk'), rule=rule)
+        queryset = queryset.annotate(membership=Subquery(membership.values('id')[:1]))
+
+        attendance = m.AttendanceHistory.objects.filter(
+            membership=OuterRef('membership'), time_slot__id=slot,
+            is_open_attend=is_open_attend, identified_on__date=date
+        )
+
+        # TODO: Query optimization
+        # In the time of I was developing, subquery does not support multiple columns
+        queryset = queryset.annotate(
+            identified_on=Subquery(attendance.values('identified_on')[:1]),
+            image=Subquery(attendance.values('image')[:1]),
+            is_right_place=Subquery(attendance.values('is_right_place')[:1]),
+            is_late_attendance=Subquery(attendance.values('is_late_attendance')[:1])
+        )
+
+        page = self.paginate_queryset(queryset)
+        serializer = s.AttendanceDailyHistorySerializer(
+            page,
+            context={
+                'request': request
+            },
+            many=True
+        )
+        return self.get_paginated_response(serializer.data)
+
     @action(detail=False, url_path="export", renderer_classes=[XLSXRenderer])
     def export(self, request):
         queryset = self.get_queryset()
         return Response(
-            self.serializer_class(queryset, many=True).data,
+            s.AttendanceReportExportSerializer(queryset, many=True).data,
             status=status.HTTP_200_OK
         )
 
