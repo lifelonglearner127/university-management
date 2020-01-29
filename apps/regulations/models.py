@@ -197,6 +197,10 @@ class AttendanceEvent(models.Model):
     description = models.TextField()
 
 
+def attendance_image_path(instance, filename):
+    return f"{instance.identified_on.strftime('%Y-%m-%d')}/{filename}"
+
+
 class AttendanceHistory(models.Model):
 
     membership = models.ForeignKey(
@@ -226,7 +230,7 @@ class AttendanceHistory(models.Model):
         auto_now_add=True
     )
 
-    image = models.ImageField()
+    image = models.ImageField(upload_to=attendance_image_path)
 
     longitude = models.DecimalField(
         max_digits=20,
