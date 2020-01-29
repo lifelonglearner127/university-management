@@ -287,10 +287,10 @@ class AttendanceRuleViewSet(XLSXFileMixin, viewsets.ModelViewSet):
         )
 
 
-class AttendanceDailyReport(XLSXFileMixin, viewsets.ModelViewSet):
+class AttendanceDailyReportViewSet(XLSXFileMixin, viewsets.ModelViewSet):
 
     queryset = m.AttendanceHistory.objects.all()
-    serializer_class = s.AttendanceReportSerializer
+    serializer_class = s.AttendanceDailyReportSerializer
     body = EXCEL_BODY_STYLE
 
     def get_column_header(self):
@@ -381,7 +381,7 @@ class AttendanceDailyReport(XLSXFileMixin, viewsets.ModelViewSet):
         ret['attendance_end_time'] = attendance_end_time
 
         return Response(
-            s.AttendanceReportDetailSerializer(ret).data,
+            s.AttendanceDailyReportDetailSerializer(ret).data,
             status=status.HTTP_200_OK
         )
 
@@ -427,7 +427,7 @@ class AttendanceDailyReport(XLSXFileMixin, viewsets.ModelViewSet):
     def export(self, request):
         queryset = self.get_queryset()
         return Response(
-            s.AttendanceReportExportSerializer(queryset, many=True).data,
+            s.AttendanceDailyReportExportSerializer(queryset, many=True).data,
             status=status.HTTP_200_OK
         )
 

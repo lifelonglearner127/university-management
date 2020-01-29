@@ -443,7 +443,7 @@ class AttendSerializer(serializers.ModelSerializer):
         return data
 
 
-class AttendanceReportSerializer(serializers.Serializer):
+class AttendanceDailyReportSerializer(serializers.Serializer):
 
     attendance_rule_id = serializers.IntegerField()
     attendance_time_id = serializers.IntegerField()
@@ -463,7 +463,7 @@ class AttendanceReportSerializer(serializers.Serializer):
         return ret
 
 
-class AttendanceReportDetailSerializer(serializers.Serializer):
+class AttendanceDailyReportDetailSerializer(serializers.Serializer):
 
     attendance_date = serializers.DateField(format='%Y-%m-%d')
     attendance_place = serializers.CharField()
@@ -479,7 +479,7 @@ class AttendanceReportDetailSerializer(serializers.Serializer):
     outside_area_num = serializers.IntegerField()
 
 
-class AttendanceReportExportSerializer(serializers.Serializer):
+class AttendanceDailyReportExportSerializer(serializers.Serializer):
 
     attendance_date = serializers.DateField(format='%Y-%m-%d')
     attendance_time = serializers.TimeField(format="%H:%M")
@@ -489,6 +489,24 @@ class AttendanceReportExportSerializer(serializers.Serializer):
     early_attendees_num = serializers.IntegerField()
     absentees_num = serializers.IntegerField()
     outside_area_num = serializers.IntegerField()
+
+
+class AttendeesReportSerializer(serializers.Serializer):
+
+    id = serializers.IntegerField()
+    work_no = serializers.CharField()
+    name = serializers.CharField()
+    department = serializers.CharField()
+    work_days = serializers.IntegerField()
+    late_attendance_days = serializers.IntegerField()
+    early_attendance_days = serializers.IntegerField()
+    unchecked_days = serializers.IntegerField()
+    outside_area_days = serializers.IntegerField()
+
+
+class AttendeesReportExportSerializer(AttendeesReportSerializer):
+
+    id = None
 
 
 class AttendanceDailyHistorySerializer(serializers.Serializer):

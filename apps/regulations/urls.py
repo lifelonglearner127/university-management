@@ -7,7 +7,7 @@ router = DefaultRouter(trailing_slash=False)
 router.register(r'attendance-places', v.AttendancePlaceViewSet)
 router.register(r'attendance-times', v.AttendanceTimeViewSet)
 router.register(r'attendance-rules', v.AttendanceRuleViewSet)
-router.register(r'attendance-daily-reports', v.AttendanceDailyReport)
+router.register(r'attendance-daily-reports', v.AttendanceDailyReportViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
