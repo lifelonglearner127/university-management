@@ -368,8 +368,7 @@ class AttendanceDailyReportViewSet(XLSXFileMixin, viewsets.ModelViewSet):
         ret = queryset.aggregate(
             total_member_num=Count('membership__rule__attendees', distinct=True),
             attendees_num=Count('id', distinct=True),
-            late_attendees_num=Count('id', filter=Q(is_open_attend=True, is_bad_attendance=True), distinct=True),
-            early_departures_num=Count('id', filter=Q(is_open_attend=False, is_bad_attendance=True), distinct=True),
+            bad_attendees_num=Count('id', filter=Q(is_bad_attendance=True), distinct=True),
             outside_area_num=Count('id', filter=Q(is_right_place=False), distinct=True),
         )
         ret['attendance_dow'] = datetime.strptime(date, '%Y-%m-%d').weekday()

@@ -472,8 +472,7 @@ class AttendanceDailyReportDetailSerializer(serializers.Serializer):
     attendance_end_time = serializers.TimeField(format="%H:%M")
     total_member_num = serializers.IntegerField()
     attendees_num = serializers.IntegerField()
-    late_attendees_num = serializers.IntegerField()
-    early_departures_num = serializers.IntegerField()
+    bad_attendees_num = serializers.IntegerField()
     absentees_num = serializers.IntegerField()
     outside_area_num = serializers.IntegerField()
 
