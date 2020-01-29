@@ -484,7 +484,7 @@ class AttendanceDailyReportExportSerializer(serializers.Serializer):
     total_member_num = serializers.IntegerField()
     attendees_num = serializers.IntegerField()
     late_attendees_num = serializers.IntegerField()
-    early_departure_num = serializers.IntegerField()
+    early_departures_num = serializers.IntegerField()
     absentees_num = serializers.IntegerField()
     outside_area_num = serializers.IntegerField()
 

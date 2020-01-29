@@ -331,7 +331,7 @@ class AttendanceDailyReportViewSet(XLSXFileMixin, viewsets.ModelViewSet):
             early_departures_num=Count('id', filter=Q(is_open_attend=False, is_bad_attendance=False), distinct=True),
             absentees_num=F('total_member_num')-F('attendees_num'),
             outside_area_num=Count('id', filter=Q(is_right_place=False), distinct=True),
-        ).order_by('attendance_date', 'attendance_time')
+        ).order_by('-attendance_date', 'attendance_time')
 
         sort_str = self.request.query_params.get('sort', None)
         if sort_str:
