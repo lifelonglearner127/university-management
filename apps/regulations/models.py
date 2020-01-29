@@ -198,7 +198,10 @@ class AttendanceEvent(models.Model):
 
 
 def attendance_image_path(instance, filename):
-    return f"{instance.identified_on.strftime('%Y-%m-%d')}/{filename}"
+    year = instance.identified_on.year
+    month = instance.identified_on.month
+    day = instance.identified_on.month
+    return f"{year}/{month}/{day}/{filename}"
 
 
 class AttendanceHistory(models.Model):
@@ -222,7 +225,7 @@ class AttendanceHistory(models.Model):
         default=True
     )
 
-    is_late_attendance = models.BooleanField(
+    is_bad_attendance = models.BooleanField(
         default=False
     )
 

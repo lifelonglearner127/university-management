@@ -327,8 +327,8 @@ class AttendanceDailyReportViewSet(XLSXFileMixin, viewsets.ModelViewSet):
                                    'is_open_attend').annotate(
             total_member_num=Count('membership__rule__attendees', distinct=True),
             attendees_num=Count('id', distinct=True),
-            late_attendees_num=Count('id', filter=Q(identified_on__time__gt=F('attendance_time')), distinct=True),
-            early_attendees_num=Count('id', filter=Q(identified_on__time__lte=F('attendance_time')), distinct=True),
+            late_attendees_num=Count('id', filter=Q(is_open_attend=True, is_bad_attendance=True), distinct=True),
+            early_departures_num=Count('id', filter=Q(is_open_attend=False, is_bad_attendance=False), distinct=True),
             absentees_num=F('total_member_num')-F('attendees_num'),
             outside_area_num=Count('id', filter=Q(is_right_place=False), distinct=True),
         ).order_by('attendance_date', 'attendance_time')
@@ -368,8 +368,8 @@ class AttendanceDailyReportViewSet(XLSXFileMixin, viewsets.ModelViewSet):
         ret = queryset.aggregate(
             total_member_num=Count('membership__rule__attendees', distinct=True),
             attendees_num=Count('id', distinct=True),
-            late_attendees_num=Count('id', filter=Q(identified_on__time__gt=attendance_time), distinct=True),
-            early_attendees_num=Count('id', filter=Q(identified_on__time__lte=attendance_time), distinct=True),
+            late_attendees_num=Count('id', filter=Q(is_open_attend=True, is_bad_attendance=True), distinct=True),
+            early_departures_num=Count('id', filter=Q(is_open_attend=False, is_bad_attendance=True), distinct=True),
             outside_area_num=Count('id', filter=Q(is_right_place=False), distinct=True),
         )
         ret['attendance_dow'] = datetime.strptime(date, '%Y-%m-%d').weekday()
@@ -410,7 +410,7 @@ class AttendanceDailyReportViewSet(XLSXFileMixin, viewsets.ModelViewSet):
             identified_on=Subquery(attendance.values('identified_on')[:1]),
             image=Subquery(attendance.values('image')[:1]),
             is_right_place=Subquery(attendance.values('is_right_place')[:1]),
-            is_late_attendance=Subquery(attendance.values('is_late_attendance')[:1])
+            is_bad_attendance=Subquery(attendance.values('is_bad_attendance')[:1])
         )
 
         page = self.paginate_queryset(queryset)

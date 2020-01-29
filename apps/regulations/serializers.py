@@ -417,10 +417,9 @@ class AttendSerializer(serializers.ModelSerializer):
         if current_time < attendance_start_time or current_time > attendance_end_time:
             raise e.OUT_OF_ATTENDANCE_TIME
 
-        if current_time <= attendance_time:
-            data['is_late_attendance'] = False
-        else:
-            data['is_late_attendance'] = True
+        if (current_time > attendance_time and data['is_open_attend']) or\
+           (current_time < attendance_time and not data['is_open_attend']):
+            data['is_bad_attendance'] = True
 
         # TODO OR NOT: Right now I am not sure whether this validation is needed or no.
         # Filtering duplicate attendance request
@@ -453,7 +452,7 @@ class AttendanceDailyReportSerializer(serializers.Serializer):
     total_member_num = serializers.IntegerField()
     attendees_num = serializers.IntegerField()
     late_attendees_num = serializers.IntegerField()
-    early_attendees_num = serializers.IntegerField()
+    early_departures_num = serializers.IntegerField()
     absentees_num = serializers.IntegerField()
     outside_area_num = serializers.IntegerField()
 
@@ -474,7 +473,7 @@ class AttendanceDailyReportDetailSerializer(serializers.Serializer):
     total_member_num = serializers.IntegerField()
     attendees_num = serializers.IntegerField()
     late_attendees_num = serializers.IntegerField()
-    early_attendees_num = serializers.IntegerField()
+    early_departures_num = serializers.IntegerField()
     absentees_num = serializers.IntegerField()
     outside_area_num = serializers.IntegerField()
 
@@ -486,7 +485,7 @@ class AttendanceDailyReportExportSerializer(serializers.Serializer):
     total_member_num = serializers.IntegerField()
     attendees_num = serializers.IntegerField()
     late_attendees_num = serializers.IntegerField()
-    early_attendees_num = serializers.IntegerField()
+    early_departure_num = serializers.IntegerField()
     absentees_num = serializers.IntegerField()
     outside_area_num = serializers.IntegerField()
 
@@ -499,7 +498,7 @@ class AttendeesReportSerializer(serializers.Serializer):
     department = serializers.CharField()
     work_days = serializers.IntegerField()
     late_attendance_days = serializers.IntegerField()
-    early_attendance_days = serializers.IntegerField()
+    early_departure_days = serializers.IntegerField()
     unchecked_days = serializers.IntegerField()
     outside_area_days = serializers.IntegerField()
 
@@ -516,7 +515,7 @@ class AttendanceDailyHistorySerializer(serializers.Serializer):
     identified_on = serializers.DateTimeField(format='%H:%M:%S')
     image = serializers.CharField()
     is_right_place = serializers.BooleanField()
-    is_late_attendance = serializers.BooleanField()
+    is_bad_attendance = serializers.BooleanField()
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
