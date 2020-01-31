@@ -56,26 +56,36 @@ class ShortTimeSlotSerializer(serializers.ModelSerializer):
         )
 
 
+# TODO: TimeSlotOpenTimeSerializer and TimeSlotCloseTimeSerializer don't need to be seperate
+
 class TimeSlotOpenTimeSerializer(serializers.ModelSerializer):
 
     rule_time = serializers.TimeField(format="%H:%M", source='open_time')
+    name = serializers.SerializerMethodField()
 
     class Meta:
         model = m.TimeSlot
         fields = (
-            'id', 'rule_time'
+            'id', 'rule_time', 'name'
         )
+
+    def get_name(self, instance):
+        return '上班'
 
 
 class TimeSlotCloseTimeSerializer(serializers.ModelSerializer):
 
     rule_time = serializers.TimeField(format="%H:%M", source='close_time')
+    name = serializers.SerializerMethodField()
 
     class Meta:
         model = m.TimeSlot
         fields = (
-            'id', 'rule_time'
+            'id', 'rule_time', 'name'
         )
+
+    def get_name(self, instance):
+        return '下班'
 
 
 class TimeSlotSerializer(serializers.ModelSerializer):
@@ -367,7 +377,7 @@ class AttendanceHistorySerializer(serializers.ModelSerializer):
 class AttendSerializer(serializers.ModelSerializer):
 
     image = Base64ImageField()
-    identified_on = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S', required=False)
+    identified_on = serializers.DateTimeField(format='%H:%M:%S', required=False)
 
     class Meta:
         model = m.AttendanceHistory
