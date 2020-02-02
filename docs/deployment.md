@@ -77,7 +77,7 @@
     sudo cp deploy/university-backend.conf /etc/nginx/sites-available
     sudo ln -s /etc/nginx/sites-available/university-backend.conf /etc/nginx/sites-enabled/university-backend.conf 
     daphne --port 9000 --verbosity 1 config.asgi:application
-    uwsgi --ini deploy/university_backend.ini 
+    uwsgi --ini deploy/university_backend.ini
     ```
 
 - 
