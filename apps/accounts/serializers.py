@@ -88,7 +88,7 @@ class AuthSerializer(serializers.ModelSerializer):
     class Meta:
         model = m.User
         fields = (
-            'id', 'username', 'name', 'avatar', 'permissions'
+            'id', 'username', 'name', 'mobile', 'avatar', 'permissions'
         )
 
     def get_avatar(self, instance):
