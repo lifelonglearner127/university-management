@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 from . import models as m
 from . import serializers as s
-from .tasks import publish_advertisement, send_notifications
+from .tasks import send_notifications
 
 
 class AdvertisementViewSet(viewsets.ModelViewSet):
@@ -360,7 +360,10 @@ class NotificationViewSet(viewsets.ModelViewSet):
         obj.recent_read_on = datetime.now()
         obj.save()
         return Response(
-            s.NotificationAppSerializer(obj).data,
+            s.NotificationAppWithUnReadCountSerializer(
+                obj,
+                context={'user': request.user}
+            ).data,
             status=status.HTTP_200_OK
         )
 

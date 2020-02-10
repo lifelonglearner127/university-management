@@ -291,3 +291,23 @@ class NotificationAppSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'notification', 'is_read', 'recent_read_on',
         )
+
+
+class NotificationAppWithUnReadCountSerializer(serializers.ModelSerializer):
+    """Notifications Serializer for teacher app
+    """
+    notification = NotificationListAppSerializer()
+    unread_count = serializers.SerializerMethodField()
+    recent_read_on = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
+
+    class Meta:
+        model = m.NotificationAudiences
+        fields = (
+            'id', 'notification', 'is_read', 'recent_read_on', 'unread_count'
+        )
+
+    def get_unread_count(self, instance):
+        return m.NotificationAudiences.objects.filter(
+            notification__is_sent=True, notification__is_deleted=False,
+            audience=self.context.get('user'), is_read=False
+        ).count()
