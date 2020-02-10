@@ -3,8 +3,9 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from config.celery import app
 from django.shortcuts import get_object_or_404
-
+from django.db.models import Q
 from . import models as m
+from .serializers import NotificationAppSerializer
 
 
 channel_layer = get_channel_layer()
@@ -17,7 +18,7 @@ def publish_advertisement(context):
         if not audience.channel_name:
             continue
 
-        query_filter = m.Q(audiences=audience) & ~m.Q(advertisementaudiences__is_read=True)
+        query_filter = Q(audiences=audience) & ~Q(advertisementaudiences__is_read=True)
         my_unread_count = m.Advertisement.publisheds.filter(query_filter).count()
 
         async_to_sync(channel_layer.send)(
@@ -37,21 +38,24 @@ def publish_advertisement(context):
 def send_notifications(context):
     notification = get_object_or_404(m.Notification, id=context['notification'])
 
-    for audience in notification.audiences.all():
-        if not audience.channel_name:
+    for notification_audience in notification.notificationaudiences_set.all():
+        if not notification_audience.audience.channel_name:
             continue
 
-        query_filter = m.Q(audiences=audience) & ~m.Q(notificationsaudiences__is_read=True)
-        my_unread_count = m.Notification.sents.filter(query_filter).count()
+        my_unread_count = m.NotificationAudiences.objects.filter(
+            notification__is_sent=True, notification__is_deleted=False,
+            audience=notification_audience.audience, is_read=False
+        ).count()
 
         async_to_sync(channel_layer.send)(
-            audience.channel_name,
+            notification_audience.audience.channel_name,
             {
                 'type': 'notify',
-                'data': json.dumps({
+                'data': {
                     'code': 0,
                     'type': 'notification',
+                    'data': NotificationAppSerializer(notification_audience).data,
                     'unreadCount': my_unread_count
-                })
+                }
             }
         )

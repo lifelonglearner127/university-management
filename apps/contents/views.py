@@ -122,11 +122,11 @@ class AdvertisementViewSet(viewsets.ModelViewSet):
             instance.is_published = True
             instance.published_date = date.today()
             instance.save()
-            publish_advertisement.apply_async(
-                args=[{
-                    'advertisement': instance.id
-                }]
-            )
+            # publish_advertisement.apply_async(
+            #     args=[{
+            #         'advertisement': instance.id
+            #     }]
+            # )
         return Response(
             self.serializer_class(instance).data,
             status=status.HTTP_200_OK

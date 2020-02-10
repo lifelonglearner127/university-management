@@ -82,13 +82,15 @@ class AuthSerializer(serializers.ModelSerializer):
     """
     Serializer for auth data of user
     """
-    avatar = serializers.SerializerMethodField()
     permissions = serializers.SerializerMethodField()
+    # TODO: I think these fields need to be wrapped
+    avatar = serializers.SerializerMethodField()
+    department = serializers.SerializerMethodField()
 
     class Meta:
         model = m.User
         fields = (
-            'id', 'username', 'name', 'mobile', 'avatar', 'permissions'
+            'id', 'username', 'name', 'mobile', 'avatar', 'permissions', 'department'
         )
 
     def get_avatar(self, instance):
@@ -104,6 +106,15 @@ class AuthSerializer(serializers.ModelSerializer):
             avatar = ''
 
         return avatar
+
+    def get_department(self, instance):
+        try:
+            profile = instance.profile
+            department = profile.department.name
+        except ObjectDoesNotExist:
+            department = ''
+
+        return department
 
     def get_permissions(self, instance):
         ret = []

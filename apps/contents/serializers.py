@@ -234,6 +234,17 @@ class NotificationListSerializer(serializers.ModelSerializer):
         )
 
 
+class NotificationListAppSerializer(serializers.ModelSerializer):
+
+    sent_on = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
+
+    class Meta:
+        model = m.Notification
+        fields = (
+            'id', 'title', 'is_sent', 'sent_on',
+        )
+
+
 class NotificationDetailSerializer(serializers.ModelSerializer):
 
     author = UserNameSerializer(read_only=True)
@@ -272,7 +283,7 @@ class NotificationAudiencesReadReportSerializer(serializers.ModelSerializer):
 class NotificationAppSerializer(serializers.ModelSerializer):
     """Notifications Serializer for teacher app
     """
-    notification = NotificationListSerializer()
+    notification = NotificationListAppSerializer()
     recent_read_on = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
 
     class Meta:
