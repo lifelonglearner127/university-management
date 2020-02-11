@@ -367,11 +367,28 @@ class NotificationViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK
         )
 
+    @action(detail=True, methods=['delete'], url_path="delete")
+    def delete_my_notification(self, request, pk=None):
+        instance = self.get_object()
+        obj = get_object_or_404(m.NotificationAudiences, notification=instance, audience=request.user)
+        if not obj.is_deleted:
+            obj.is_deleted = True
+            obj.save()
+
+        return Response(
+            s.NotificationAppWithUnReadCountSerializer(
+                obj,
+                context={'user': request.user}
+            ).data,
+            status=status.HTTP_200_OK
+        )
+
     @action(detail=False, url_path='me/all')
     def my_notifications(self, request):
         page = self.paginate_queryset(
             m.NotificationAudiences.objects.filter(
-                notification__is_sent=True, notification__is_deleted=False, audience=request.user
+                notification__is_sent=True, notification__is_deleted=False,
+                audience=request.user, is_deleted=False
             ).order_by('is_read', '-recent_read_on')
         )
 
@@ -385,7 +402,8 @@ class NotificationViewSet(viewsets.ModelViewSet):
     def my_unread_notifications(self, request):
         page = self.paginate_queryset(
             m.NotificationAudiences.objects.filter(
-                notification__is_sent=True, notification__is_deleted=False, audience=request.user, is_read=False
+                notification__is_sent=True, notification__is_deleted=False,
+                audience=request.user, is_read=False, is_deleted=False
             ).order_by('is_read', '-recent_read_on')
         )
 
@@ -399,7 +417,8 @@ class NotificationViewSet(viewsets.ModelViewSet):
     def my_read_notifications(self, request):
         page = self.paginate_queryset(
             m.NotificationAudiences.objects.filter(
-                notification__is_sent=True, notification__is_deleted=False, audience=request.user, is_read=True
+                notification__is_sent=True, notification__is_deleted=False,
+                audience=request.user, is_read=True,  is_deleted=False
             ).order_by('is_read', '-recent_read_on')
         )
 
@@ -412,7 +431,8 @@ class NotificationViewSet(viewsets.ModelViewSet):
     @action(detail=False, url_path="me/unread-count")
     def my_unread_notifications_count(self, request):
         my_unread_count = m.NotificationAudiences.objects.filter(
-            notification__is_sent=True, notification__is_deleted=False, audience=request.user, is_read=False
+            notification__is_sent=True, notification__is_deleted=False,
+            audience=request.user, is_read=False, is_deleted=False
         ).count()
         return Response(
             {

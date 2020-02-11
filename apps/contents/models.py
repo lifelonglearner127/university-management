@@ -146,5 +146,9 @@ class NotificationAudiences(models.Model):
         blank=True
     )
 
+    is_deleted = models.BooleanField(
+        default=False
+    )
+
     def __str__(self):
         return f'{self.notification} - ({self.audience.name})'

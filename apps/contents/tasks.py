@@ -44,7 +44,7 @@ def send_notifications(context):
 
         my_unread_count = m.NotificationAudiences.objects.filter(
             notification__is_sent=True, notification__is_deleted=False,
-            audience=notification_audience.audience, is_read=False
+            audience=notification_audience.audience, is_read=False,  is_deleted=False
         ).count()
 
         async_to_sync(channel_layer.send)(

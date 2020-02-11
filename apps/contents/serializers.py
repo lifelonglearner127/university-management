@@ -309,5 +309,5 @@ class NotificationAppWithUnReadCountSerializer(serializers.ModelSerializer):
     def get_unread_count(self, instance):
         return m.NotificationAudiences.objects.filter(
             notification__is_sent=True, notification__is_deleted=False,
-            audience=self.context.get('user'), is_read=False
+            audience=self.context.get('user'), is_read=False,  is_deleted=False
         ).count()
