@@ -12,5 +12,6 @@ router.register(r'attendance-daily-reports', v.AttendanceDailyReportViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('attendance-status', v.AttendanceStatusAPIView.as_view()),
-    path('attend', v.AttendAPIView.as_view())
+    path('attend', v.AttendAPIView.as_view()),
+    path('attendance-comment', v.AttendanceCommentAPIView.as_view())
 ]

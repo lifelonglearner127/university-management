@@ -591,3 +591,26 @@ class AttendAPIView(views.APIView):
                     },
                     status=status.HTTP_400_BAD_REQUEST
                 )
+
+
+class AttendanceCommentAPIView(views.APIView):
+
+    def post(self, request):
+        history_id = request.data.get('id')
+        description = request.data.get('description', '')
+        instance = get_object_or_404(m.AttendanceHistory, id=history_id)
+
+        if description:
+            instance.description = description
+            instance.save()
+
+        return Response(
+            {
+                'code': 0,
+                'data': s.AttendSerializer(
+                    instance,
+                    context={'user': request.user, 'request': request}
+                ).data
+            },
+            status=status.HTTP_200_OK
+        )

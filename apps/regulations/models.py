@@ -252,3 +252,8 @@ class AttendanceHistory(models.Model):
     is_right_place = models.BooleanField(
         default=True
     )
+
+    description = models.TextField(
+        null=True,
+        blank=True
+    )
