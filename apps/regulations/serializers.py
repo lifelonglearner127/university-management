@@ -446,7 +446,7 @@ class AttendSerializer(serializers.ModelSerializer):
         encodings = np.loadtxt(file_name)
         matches = face_recognition.compare_faces(encodings, query_encoding)
         matches_count = matches.count(True)
-        if matches_count < int(len(matches) * 0.2):
+        if matches_count <= int(len(matches) * 0.2):
             raise e.FACE_RECOGNITION_FAILED('Failed recognition')
 
         return data

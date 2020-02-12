@@ -16,7 +16,7 @@ from drf_renderer_xlsx.renderers import XLSXRenderer
 from . import models as m
 from . import serializers as s
 from ..core.export import EXCEL_BODY_STYLE, EXCEL_HEAD_STYLE
-from .tasks import extract_feature
+from .tasks import sync_extract_feature
 
 
 class DepartmentViewSet(XLSXFileMixin, viewsets.ModelViewSet):
@@ -299,6 +299,11 @@ class TeacherViewSet(XLSXFileMixin, viewsets.ModelViewSet):
         if image_id:
             instance.images.filter(id=image_id).delete()
 
+        sync_extract_feature.apply_async(
+            args=[{
+                'teacher': instance.id
+            }]
+        )
         return Response(
             self.serializer_class(
                 instance,
@@ -314,6 +319,11 @@ class TeacherViewSet(XLSXFileMixin, viewsets.ModelViewSet):
         if image_ids:
             instance.images.filter(id__in=image_ids).delete()
 
+        sync_extract_feature.apply_async(
+            args=[{
+                'teacher': instance.id
+            }]
+        )
         return Response(
             self.serializer_class(
                 instance,
@@ -354,10 +364,9 @@ class TeacherViewSet(XLSXFileMixin, viewsets.ModelViewSet):
             serializer.save()
             image_ids.append(serializer.instance.id)
 
-        extract_feature.apply_async(
+        sync_extract_feature.apply_async(
             args=[{
-                'teacher': instance.id,
-                'image_ids': image_ids
+                'teacher': instance.id
             }]
         )
         return Response(
@@ -383,10 +392,9 @@ class TeacherViewSet(XLSXFileMixin, viewsets.ModelViewSet):
             serializer.save()
             image_ids.append(serializer.instance.id)
 
-        extract_feature.apply_async(
+        sync_extract_feature.apply_async(
             args=[{
-                'teacher': my_profile.id,
-                'image_ids': image_ids
+                'teacher': my_profile.id
             }]
         )
 
