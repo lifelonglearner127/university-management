@@ -339,6 +339,12 @@ class TeacherViewSet(XLSXFileMixin, viewsets.ModelViewSet):
         if image_ids:
             profile.images.filter(id__in=image_ids).delete()
 
+        sync_extract_feature.apply_async(
+            args=[{
+                'teacher': profile.id
+            }]
+        )
+
         return Response(
             self.serializer_class(
                 profile,

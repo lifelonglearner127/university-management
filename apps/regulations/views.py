@@ -571,6 +571,9 @@ class AttendAPIView(views.APIView):
         except e.TIMESLOT_MISSING:
             code = -1
             data = 'Timeslot error'
+        except e.FACE_RECOGNITION_IMEI_NOT_MATCH:
+            code = -1
+            data = 'Imei does not match'
         except Exception:
             code = -1
             data = 'Unkonw Issue'

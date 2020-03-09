@@ -446,13 +446,20 @@ class AttendSerializer(serializers.ModelSerializer):
             raise e.FACE_RECOGNITION_NO_DATASET('No dataset')
 
         encodings = np.loadtxt(file_name)
-        matches = face_recognition.compare_faces(encodings, query_encoding)
+        if len(encodings) == 0:
+            raise e.FACE_RECOGNITION_NO_DATASET('No dataset')
+
+        if encodings.ndim == 1:
+            encodings = [encodings]
+
+        matches = face_recognition.compare_faces(encodings, query_encoding, tolerance=0.5)
         matches_count = matches.count(True)
-        if matches_count <= int(len(matches) * 0.2):
+        if matches_count <= len(matches) // 2:
             raise e.FACE_RECOGNITION_FAILED('Failed recognition')
 
         # imei validation
-        if user.imei is not None and user.imei != data['imei']:
+        imei = data.get('imei', None)
+        if user.imei is not None and imei is not None and user.imei != imei:
             raise e.FACE_RECOGNITION_IMEI_NOT_MATCH('Imei not match')
 
         return data
