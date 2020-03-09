@@ -46,14 +46,15 @@ def sync_extract_feature(context):
     if not os.path.exists(settings.FEATURE_ROOT):
         os.makedirs(settings.FEATURE_ROOT)
 
-    image_paths = teacher.images.values_list('image', flat=True)
+    teacher_images = teacher.images.values_list('id', 'image')
 
     encodings = []
-    for image_path in image_paths:
-        image_server_path = os.path.join(settings.MEDIA_ROOT, image_path)
+    for teacher_image in teacher_images:
+        image_server_path = os.path.join(settings.MEDIA_ROOT, teacher_image[1])
         image = cv2.imread(image_server_path)
         face_locations = face_recognition.face_locations(image, model="hog")
         if len(face_locations) != 1:
+            m.TeacherImage.objects.get(id=teacher_image[0]).delete()
             continue
 
         (top, right, bottom, left) = face_locations[0]
