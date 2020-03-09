@@ -20,3 +20,7 @@ class FACE_RECOGNITION_FAILED(Exception):
 
 class FACE_RECOGNITION_IMEI_NOT_MATCH(Exception):
     pass
+
+
+class FACE_DETECTION_FAILED(Exception):
+    pass

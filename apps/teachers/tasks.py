@@ -52,7 +52,11 @@ def sync_extract_feature(context):
     for image_path in image_paths:
         image_server_path = os.path.join(settings.MEDIA_ROOT, image_path)
         image = cv2.imread(image_server_path)
-        (top, right, bottom, left) = face_recognition.face_locations(image, model="hog")[0]
+        face_locations = face_recognition.face_locations(image, model="hog")
+        if len(face_locations) != 1:
+            continue
+
+        (top, right, bottom, left) = face_locations[0]
         detected_face = image[top:bottom, left:right]
         cv2.imwrite(image_server_path, detected_face)
         encodings.append(face_recognition.face_encodings(detected_face)[0])

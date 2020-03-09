@@ -574,6 +574,9 @@ class AttendAPIView(views.APIView):
         except e.FACE_RECOGNITION_IMEI_NOT_MATCH:
             code = -1
             data = 'Imei does not match'
+        except e.FACE_DETECTION_FAILED:
+            code = -1
+            data = 'No face detected in photo'
         except Exception:
             code = -1
             data = 'Unkonw Issue'
