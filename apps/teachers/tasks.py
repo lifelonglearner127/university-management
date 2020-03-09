@@ -1,4 +1,5 @@
 import os
+import cv2
 import face_recognition
 import numpy as np
 from config.celery import app
@@ -11,6 +12,7 @@ from . import models as m
 def extract_feature(context):
     """
     Append the 128d-features to the encoding files once images are added
+    This is not used for now. Older version
     """
     teacher_id = context['teacher']
     image_ids = context['image_ids']
@@ -25,7 +27,7 @@ def extract_feature(context):
     encodings = []
     for image_path in image_paths:
         image = face_recognition.load_image_file(os.path.join(settings.MEDIA_ROOT, image_path))
-        encodings.append(face_recognition.face_encodings(image)[0])
+       encodings.append(face_recognition.face_encodings(image)[0])
 
     file_name = os.path.join(settings.FEATURE_ROOT, f"{username}.txt")
     with open(file_name, "ab") as f:
@@ -48,8 +50,12 @@ def sync_extract_feature(context):
 
     encodings = []
     for image_path in image_paths:
-        image = face_recognition.load_image_file(os.path.join(settings.MEDIA_ROOT, image_path))
-        encodings.append(face_recognition.face_encodings(image)[0])
+        image_server_path = os.path.join(settings.MEDIA_ROOT, image_path)
+        image = cv2.imread(image_server_path)
+        (top, right, bottom, left) = face_recognition.face_locations(image)[0]
+        detected_face = image[top:bottom, left:right]
+        cv2.imwrite(image_server_path, detected_face)
+        encodings.append(face_recognition.face_encodings(detected_face)[0])
 
     file_name = os.path.join(settings.FEATURE_ROOT, f"{username}.txt")
     with open(file_name, "wb") as f:

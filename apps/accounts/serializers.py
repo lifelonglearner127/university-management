@@ -111,7 +111,7 @@ class AuthSerializer(serializers.ModelSerializer):
         try:
             profile = instance.profile
             department = profile.department.name
-        except ObjectDoesNotExist:
+        except Exception:
             department = ''
 
         return department

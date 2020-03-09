@@ -436,6 +436,8 @@ class AttendSerializer(serializers.ModelSerializer):
 
         # face validations
         query_image = face_recognition.load_image_file(data['image'])
+        (top, right, bottom, left) = face_recognition.face_locations(query_image, model="hog")[0]
+        query_image = query_image[top:bottom, left:right]
         query_encoding = face_recognition.face_encodings(query_image)[0]
         user = self.context.get('user')
         username = user.username
