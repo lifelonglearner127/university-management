@@ -16,3 +16,7 @@ class FACE_RECOGNITION_NO_DATASET(Exception):
 
 class FACE_RECOGNITION_FAILED(Exception):
     pass
+
+
+class FACE_RECOGNITION_IMEI_NOT_MATCH(Exception):
+    pass

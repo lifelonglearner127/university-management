@@ -451,6 +451,10 @@ class AttendSerializer(serializers.ModelSerializer):
         if matches_count <= int(len(matches) * 0.2):
             raise e.FACE_RECOGNITION_FAILED('Failed recognition')
 
+        # imei validation
+        if user.imei is not None and user.imei != data['imei']:
+            raise e.FACE_RECOGNITION_IMEI_NOT_MATCH('Imei not match')
+
         return data
 
 
