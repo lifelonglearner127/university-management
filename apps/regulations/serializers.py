@@ -462,7 +462,7 @@ class AttendSerializer(serializers.ModelSerializer):
             raise e.FACE_RECOGNITION_FAILED('Failed recognition')
 
         # imei validation
-        imei = data.get('imei', None)
+        imei = self.context.get('imei', None)
         if user.imei is not None and imei is not None and user.imei != imei:
             raise e.FACE_RECOGNITION_IMEI_NOT_MATCH('Imei not match')
 

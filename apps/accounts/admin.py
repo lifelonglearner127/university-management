@@ -60,7 +60,7 @@ class UserAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         ('Personal info', {
-            'fields': ('name', 'mobile', 'device_token', 'channel_name')
+            'fields': ('name', 'mobile', 'imei', 'device_token', 'channel_name')
         }),
     )
     add_fieldsets = (

@@ -548,7 +548,7 @@ class AttendAPIView(views.APIView):
     def post(self, request):
         serializer = s.AttendSerializer(
             data=request.data,
-            context={'user': request.user, 'request': request}
+            context={'user': request.user, 'imei': request.data.get('imei', None), 'request': request}
         )
 
         try:
