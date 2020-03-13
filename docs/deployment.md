@@ -80,4 +80,10 @@
     uwsgi --ini deploy/university_backend.ini
     ```
 
-- 
+- Making Service
+```
+cp deploy/*.service /lib/systemd/system/
+systemctl daemon-reload
+systemctl restart/status/enable schools_uwsgi.service
+systemctl restart/status/enable schools_daphne.service
+```

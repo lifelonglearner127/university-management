@@ -1,0 +1,14 @@
+[Unit]
+Description=tms backend asgi server
+After=network.target
+
+[Service]
+WorkingDirectory=/home/namho/Projects/university-backend
+Environment="DJANGO_SETTINGS_MODULE=config.settings.local"
+ExecStart=/home/namho/.virtualenvs/university-backend/bin/daphne --bind 0.0.0.0 --port 9000 --verbosity 0 config.asgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
