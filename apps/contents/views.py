@@ -292,6 +292,16 @@ class NotificationViewSet(viewsets.ModelViewSet):
             status=status.HTTP_204_NO_CONTENT
         )
 
+    @action(detail=False, methods=['post'], url_path="bulk-delete")
+    def bulk_delete(slef, request):
+        m.Notification.objects.filter(id__in=request.data.get('ids', [])).delete()
+        return Response(
+            {
+                'msg': 'Delete successfully'
+            },
+            status=status.HTTP_200_OK
+        )
+
     @action(detail=True, url_path='audiences')
     def get_audiences_with_pagination(self, request, pk=None):
         instance = get_object_or_404(m.Notification, id=pk)
