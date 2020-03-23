@@ -253,6 +253,11 @@ class AttendanceHistory(models.Model):
         default=True
     )
 
+    address = models.TextField(
+        null=True,
+        blank=True
+    )
+
     description = models.TextField(
         null=True,
         blank=True
