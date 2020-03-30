@@ -3,7 +3,7 @@ Description=tms uWSGI Emperor Service
 After=network.target
 
 [Service]
-Environment="DJANGO_SETTINGS_MODULE=config.settings.local"
+Environment="DJANGO_SETTINGS_MODULE=config.settings.staging"
 ExecStart=/home/namho/.virtualenvs/schools/bin/uwsgi --ini /home/namho/Projects/university-management/deploy/university_backend.ini
 Restart=always
 KillSignal=SIQUIT
