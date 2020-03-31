@@ -22,21 +22,23 @@
 ### Pip and Virtualenv Installation
 - Pip Installation
     ```
-    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-    sudo apt-get install python3-distutils
-    python3 get-pip.py --user
+    sudo apt -y install python3-venv python3-pip
+    python3 -m pip install -U pip
     ```
     > Please restart the os in order for pip to work properly
 
 - Virtualenv Installation
     ```
-    pip install virtualenv --user
+    python3 -m pip install virtualenv
     ```
 
 ### Postgresql Installation & Configuration
 - Installation
 
     Please refer to this [link](https://www.postgresql.org/download/) to install Postgresql
+    ```
+    apt install libpq-dev
+    ```
 
 - Configuration
 
@@ -55,20 +57,36 @@
     git clone https://github.com/lifelonglearner127/university-management.git
     cd university-management
     ```
-
+- Install Build Packages
+    ```
+    apt install cmake
+    apt install libsm6 libxext6 libxrender-dev
+    ```
 - Creating Virtual environment and configure `.env`
     ```
-    virtualenv venv
-    source venv/bin/activate
+    python3 -m venv schools
+    source schools/bin/activate
     pip install -r requirements.txt
-    mv .env.example .env
+    cp .env.example .env
     ```
+    > Please make sure you install `cmake` in order to install `dlib` 
 
 - Migrate and Create super user
     ```
     python manage.py collectstatic
     python manage.py migrate
     python manage.py createsuperuser
+    ```
+
+## Instsall RabbitMQ
+    ```
+    apt install rabbitmq-server
+    ```
+
+## Configure Redis as docker
+    ```
+    apt install docker.io
+    docker run -dit --restart unless-stopped -p 6379:6379 -d redis:2.8
     ```
 
 ### Running `uwsgi` and `daphne` service
@@ -80,10 +98,25 @@
     uwsgi --ini deploy/university_backend.ini
     ```
 
+- Change some settings
+    - Changes in `deploy/schools_daphne.service`
+        - change `WorkingDirectory`
+        - change `Environment`
+        - change `ExecStart`
+    - Changes in `deploy/schools_uwsgi.service`
+        - change `Environment`
+        - change `ExecStart`
+    - Changes in `deploy/university_backend.ini`
+        - change `chdir`
+        - change `chown-socket`
+    - Changes in `config/settings/staging.py`
+        - change `ALLOWED_HOSTS`
+        - change `CORS_ORIGIN_WHITELIST`
+
 - Making Service
-```
-cp deploy/*.service /lib/systemd/system/
-systemctl daemon-reload
-systemctl restart/status/enable schools_uwsgi.service
-systemctl restart/status/enable schools_daphne.service
-```
+    ```
+    cp deploy/*.service /lib/systemd/system/
+    systemctl daemon-reload
+    systemctl restart/status/enable schools_uwsgi.service
+    systemctl restart/status/enable schools_daphne.service
+    ```
