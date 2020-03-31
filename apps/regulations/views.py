@@ -558,25 +558,25 @@ class AttendAPIView(views.APIView):
             data = serializer.data
         except e.FACE_RECOGNITION_NO_DATASET:
             code = -1
-            data = 'No Dataset'
+            data = '无本人人脸库，请输入本人人脸后进行操作'
         except e.FACE_RECOGNITION_FAILED:
             code = -1
-            data = 'Failed'
+            data = '检查失败, 请确保是本人'
         except e.NO_ATTENDANCE_DAY:
             code = -1
-            data = 'No attendance day'
+            data = '今天是休息天，无需考勤'
         except e.OUT_OF_ATTENDANCE_TIME:
             code = -1
-            data = 'Not able to attend befor or after'
+            data = '已过考勤时间，所以不能操作'
         except e.TIMESLOT_MISSING:
             code = -1
             data = 'Timeslot error'
         except e.FACE_RECOGNITION_IMEI_NOT_MATCH:
             code = -1
-            data = 'Imei does not match'
+            data = '这台设备不是登记的考勤设备，请确认'
         except e.FACE_DETECTION_FAILED:
             code = -1
-            data = 'No face detected in photo'
+            data = '未识别到人脸，请正确面对镜头'
         except Exception:
             code = -1
             data = 'Unkonw Issue'
