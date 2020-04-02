@@ -241,7 +241,7 @@ class NotificationListAppSerializer(serializers.ModelSerializer):
     class Meta:
         model = m.Notification
         fields = (
-            'id', 'title', 'is_sent', 'sent_on',
+            'id', 'title', 'body', 'is_sent', 'sent_on',
         )
 
 
