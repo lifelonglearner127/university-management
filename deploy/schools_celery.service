@@ -1,0 +1,16 @@
+[Unit]
+Description=School Celery
+After=network.target
+
+[Service]
+User=root
+Group=root
+Environment="DJANGO_SETTINGS_MODULE=config.settings.staging"
+WorkingDirectory=/root/Projects/university-management
+ExecStart=/root/.virtualenvs/schools/bin/celery worker -A config
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
