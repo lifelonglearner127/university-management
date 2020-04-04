@@ -470,7 +470,6 @@ class AttendSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        ret.pop('image', None)
         ret["place"] = instance.membership.rule.attendance_place.address
         return ret
 

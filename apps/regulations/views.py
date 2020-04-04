@@ -585,7 +585,7 @@ class AttendAPIView(views.APIView):
             data = '未识别到人脸，请正确面对镜头'
         except Exception:
             code = -1
-            data = 'Unkonw Issue'
+            data = '未知问题'
         finally:
             if code == 0:
                 return Response(
