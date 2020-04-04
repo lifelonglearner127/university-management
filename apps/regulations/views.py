@@ -530,6 +530,12 @@ class AttendanceStatusAPIView(views.APIView):
 
             ret['rules'][expand_rule_index]['is_expanded'] = True
 
+            for i in range(0, len(ret['rules'])):
+                if i < expand_rule_index:
+                    ret['rules'][i]["before"] = True
+                else:
+                    ret['rules'][i]["before"] = False
+
             return Response(
                 ret,
                 status=status.HTTP_200_OK
