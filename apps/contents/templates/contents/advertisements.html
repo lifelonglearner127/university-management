@@ -2,7 +2,7 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-      h1 {
+      /* h1 {
         text-align: center;
         margin: 10px 0;
         font-size: 30px;
@@ -42,12 +42,15 @@
           clear: both;
           float: none !important;
         }
-      }
+      } */
     </style>
   </head>
   <body>
-    <h1>{{ title }}</h1>
-    <div class="sub_wrap">
+    <h3>{{ title }}</h3>
+    <div>
+      {{ author }}: {{ published_date | date:'Y-m-d' }}
+    </div>
+    <!-- <div class="sub_wrap">
       <div>
         <span>发布时间</span>: {{ published_date | date:'Y-m-d'}}
       </div>
@@ -55,7 +58,7 @@
         <span>作者</span>: {{ author }}
       </div>
       <div class="clear"></div>
-    </div>
+    </div> -->
 
     <div class="sub_content">
     {{ body | safe }}
