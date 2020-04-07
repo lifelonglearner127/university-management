@@ -440,9 +440,7 @@ class AttendSerializer(serializers.ModelSerializer):
         if len(face_locations) != 1:
             raise e.FACE_DETECTION_FAILED('No face in the photo')
 
-        (top, right, bottom, left) = face_locations[0]
-        query_image = query_image[top:bottom, left:right]
-        query_encoding = face_recognition.face_encodings(query_image)[0]
+        query_encoding = face_recognition.face_encodings(query_image, face_locations)[0]
         user = self.context.get('user')
         username = user.username
         file_name = os.path.join(settings.FEATURE_ROOT, f"{username}.txt")

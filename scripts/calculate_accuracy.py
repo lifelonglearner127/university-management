@@ -38,9 +38,7 @@ for (i, person) in enumerate(persons):
             break
 
         image_nums += 1
-        (top, right, bottom, left) = face_locations[0]
-        detected_face = image[top:bottom, left:right]
-        encodings[person].append(face_recognition.face_encodings(detected_face)[0])
+        encodings[person].append(face_recognition.face_encodings(image, face_locations)[0])
 
 
 false_positives = 0
@@ -53,9 +51,7 @@ for (i, person) in enumerate(persons):
     for (j, test_image) in enumerate(test_images):
         query_image = face_recognition.load_image_file(test_image)
         face_locations = face_recognition.face_locations(query_image, model="hog")
-        (top, right, bottom, left) = face_locations[0]
-        query_image = query_image[top:bottom, left:right]
-        query_encoding = face_recognition.face_encodings(query_image)[0]
+        query_encoding = face_recognition.face_encodings(query_image, face_locations)[0]
 
         matches = face_recognition.compare_faces(encodings[person], query_encoding, tolerance=0.5)
         matches_count = matches.count(True)

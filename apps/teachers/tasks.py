@@ -57,10 +57,8 @@ def sync_extract_feature(context):
             m.TeacherImage.objects.get(id=teacher_image[0]).delete()
             continue
 
-        (top, right, bottom, left) = face_locations[0]
-        detected_face = image[top:bottom, left:right]
-        cv2.imwrite(image_server_path, detected_face)
-        encodings.append(face_recognition.face_encodings(detected_face)[0])
+        cv2.imwrite(image_server_path, image)
+        encodings.append(face_recognition.face_encodings(image, face_locations)[0])
 
     file_name = os.path.join(settings.FEATURE_ROOT, f"{username}.txt")
     with open(file_name, "wb") as f:
