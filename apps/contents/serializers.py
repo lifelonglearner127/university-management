@@ -24,6 +24,7 @@ class AdvertisementAudiencesReadReportSerializer(serializers.ModelSerializer):
 
     audience = UserNameSerializer()
     department = DepartmentSerializer(source='audience.profile.department')
+    recent_read_on = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
 
     class Meta:
         model = m.AdvertisementAudiences
@@ -272,6 +273,7 @@ class NotificationAudiencesReadReportSerializer(serializers.ModelSerializer):
 
     audience = UserNameSerializer()
     department = DepartmentSerializer(source='audience.profile.department')
+    recent_read_on = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
 
     class Meta:
         model = m.NotificationAudiences
