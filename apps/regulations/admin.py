@@ -41,3 +41,8 @@ class UnAttendanceMembershipAdmin(admin.ModelAdmin):
 @admin.register(m.AttendanceHistory)
 class AttendanceHistoryAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(m.AttendanceDatePerson)
+class AttendanceDatePersonAdmin(admin.ModelAdmin):
+    pass

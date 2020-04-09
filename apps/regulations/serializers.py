@@ -553,3 +553,29 @@ class AttendanceDailyHistorySerializer(serializers.Serializer):
             ret['image'] = request.build_absolute_uri(settings.MEDIA_URL + ret['image'])
 
         return ret
+
+
+class AttendanceDatePersonSerializer(serializers.Serializer):
+
+    id = serializers.IntegerField()
+    work_no = serializers.CharField()
+    name = serializers.CharField()
+    department = serializers.CharField()
+    total_checks = serializers.IntegerField()
+    checks = serializers.IntegerField()
+    unchecks = serializers.IntegerField()
+    late_attendances = serializers.IntegerField()
+    early_leaves = serializers.IntegerField()
+    outside_checks = serializers.IntegerField()
+
+
+class AttendanceDatePersonExportSerializer(serializers.Serializer):
+
+    work_no = serializers.CharField()
+    name = serializers.CharField()
+    department = serializers.CharField()
+    total_checks = serializers.IntegerField()
+    checks = serializers.IntegerField()
+    late_attendances = serializers.IntegerField()
+    early_leaves = serializers.IntegerField()
+    outside_checks = serializers.IntegerField()

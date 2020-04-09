@@ -1,0 +1,16 @@
+[Unit]
+Description=University Celery beat
+After=network.target
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/root/Projects/university-management
+Environment="DJANGO_SETTINGS_MODULE=config.settings.staging_alibaba"
+ExecStart=/root/.virtualenvs/schools/bin/celery -A config beat
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

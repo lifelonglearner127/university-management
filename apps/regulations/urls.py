@@ -8,6 +8,7 @@ router.register(r'attendance-places', v.AttendancePlaceViewSet)
 router.register(r'attendance-times', v.AttendanceTimeViewSet)
 router.register(r'attendance-rules', v.AttendanceRuleViewSet)
 router.register(r'attendance-daily-reports', v.AttendanceDailyReportViewSet)
+router.register(r'attendance-date-person-reports', v.AttendanceDatePersonViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

@@ -1,6 +1,6 @@
 import time
 from datetime import date, datetime, timedelta
-from django.db.models import F, Q, Count, Case, When, OuterRef, Subquery, ExpressionWrapper, BooleanField
+from django.db.models import F, Q, Count, Case, When, OuterRef, Subquery, Sum
 from django.db.models.functions import TruncDate
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status, views
@@ -427,6 +427,69 @@ class AttendanceDailyReportViewSet(XLSXFileMixin, viewsets.ModelViewSet):
         queryset = self.get_queryset()
         return Response(
             s.AttendanceDailyReportExportSerializer(queryset, many=True).data,
+            status=status.HTTP_200_OK
+        )
+
+
+class AttendanceDatePersonViewSet(XLSXFileMixin, viewsets.ModelViewSet):
+
+    queryset = m.AttendanceDatePerson.objects.all()
+    serializer_class = s.AttendanceDatePersonSerializer
+    body = EXCEL_BODY_STYLE
+
+    def get_column_header(self):
+        ret = EXCEL_HEAD_STYLE
+        ret['titles'] = [
+            '工号', '名称', '部门', '正常天数', '签到次数', '未签到次数', '迟到次数', '早退次数', '范围外次数', '请假情况',
+        ]
+        return ret
+
+    def get_queryset(self):
+        queryset = self.queryset
+        start_date = self.request.query_params.get('startDate', None)
+        if start_date:
+            start_date = datetime.strptime(start_date, '%Y-%m-%d')
+            queryset = queryset.filter(date__gte=start_date)
+
+        end_date = self.request.query_params.get('endDate', None)
+        if end_date:
+            end_date = datetime.strptime(end_date, '%Y-%m-%d')
+            queryset = queryset.filter(date__lte=end_date)
+
+        queryset = self.queryset.values('teacher').annotate(
+            id=F('teacher__id'),
+            work_no=F('teacher__work_no'),
+            name=F('teacher__user__name'),
+            department=F('teacher__department__name'),
+            total_checks=Sum('total_checks'),
+            checks=Sum('checks'),
+            unchecks=F('total_checks') - F('checks'),
+            late_attendances=Sum('late_attendances'),
+            early_leaves=Sum('early_leaves'),
+            outside_checks=Sum('outside_checks'),
+        )
+
+        sort_str = self.request.query_params.get('sort', None)
+        if sort_str:
+            queryset = queryset.order_by(sort_str)
+
+        return queryset
+
+    @action(detail=False, url_path="by-date")
+    def get_report_by_date(self, request):
+
+        page = self.paginate_queryset(self.get_queryset())
+        serializer = s.AttendanceDatePersonSerializer(
+            page,
+            many=True
+        )
+        return self.get_paginated_response(serializer.data)
+
+    @action(detail=False, url_path="export", renderer_classes=[XLSXRenderer])
+    def export(self, request):
+        queryset = self.get_queryset()
+        return Response(
+            s.AttendanceDatePersonExportSerializer(queryset, many=True).data,
             status=status.HTTP_200_OK
         )
 

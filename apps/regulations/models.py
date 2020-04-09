@@ -262,3 +262,25 @@ class AttendanceHistory(models.Model):
         null=True,
         blank=True
     )
+
+
+class AttendanceDatePerson(models.Model):
+
+    teacher = models.ForeignKey(
+        TeacherProfile,
+        on_delete=models.CASCADE
+    )
+
+    date = models.DateField()
+
+    total_checks = models.PositiveIntegerField()
+
+    checks = models.PositiveIntegerField()
+
+    late_attendances = models.PositiveIntegerField()
+
+    early_leaves = models.PositiveIntegerField()
+
+    outside_checks = models.PositiveIntegerField()
+
+    holidays = models.PositiveIntegerField()
