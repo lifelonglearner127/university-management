@@ -120,4 +120,5 @@
     systemctl restart/status/enable schools_uwsgi.service
     systemctl restart/status/enable schools_daphne.service
     systemctl restart/status/enable schools_celery.service
+    systemctl restart/status/enable schools_celerybeat.service
     ```
