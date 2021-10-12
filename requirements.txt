@@ -40,7 +40,7 @@ mccabe==0.6.1
 more-itertools==8.0.2
 msgpack==0.6.2
 numpy==1.18.0
-opencv-python==4.1.2.30
+opencv-python==4.2.0.32
 openpyxl==3.0.2
 Pillow==6.2.1
 psycopg2==2.8.4
